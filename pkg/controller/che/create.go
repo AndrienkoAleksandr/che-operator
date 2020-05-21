@@ -135,13 +135,13 @@ func (r *ReconcileChe) CreateSecret(instance *orgv1.CheCluster, m map[string][]b
 	return nil
 }
 
-func (r *ReconcileChe) CreateTLSSecret(instance *orgv1.CheCluster, url string, name string, clusterAPI deploy.ClusterAPI) (err error) {
+func (r *ReconcileChe) CreateTLSSecret(instance *orgv1.CheCluster, url string, name string, proxy *util.Proxy, clusterAPI deploy.ClusterAPI) (err error) {
 	// create a secret with either router tls cert (or OpenShift API crt) when on OpenShift infra
 	// and router is configured with a self signed certificate
 	// this secret is used by CRW server to reach RH SSO TLS endpoint
 	secret := &corev1.Secret{}
 	if err := r.client.Get(context.TODO(), types.NamespacedName{Name: name, Namespace: instance.Namespace}, secret); err != nil && errors.IsNotFound(err) {
-		crt, err := r.GetEndpointTlsCrt(instance, url, clusterAPI)
+		crt, err := r.GetEndpointTlsCrt(instance, url, proxy, clusterAPI)
 		if err != nil {
 			logrus.Errorf("Failed to extract crt for secret %s. Failed to create a secret with a self signed crt: %s", name, err)
 			return err

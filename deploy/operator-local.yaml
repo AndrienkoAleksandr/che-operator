@@ -81,3 +81,5 @@ spec:
               value: che-identity-postgres-secret
             - name: CHE_POSTGRES_SECRET
               value: che-postgres-secret
+            - name: CHE_SERVER_CERT_CONFIG_MAP
+              value: ca-certs

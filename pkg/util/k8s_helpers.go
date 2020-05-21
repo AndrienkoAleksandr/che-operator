@@ -85,6 +85,11 @@ func (cl *k8s) IsPVCExists(pvcName string, ns string) bool {
 	return err == nil
 }
 
+func (cl *k8s) ReadOpenshiftConfigMap(name string) (*corev1.ConfigMap, error) {
+	getOptions := metav1.GetOptions{}
+	return cl.clientset.CoreV1().ConfigMaps("openshift-config").Get(name, getOptions)
+}
+
 func (cl *k8s) DeletePVC(pvcName string, ns string) {
 	logrus.Infof("Deleting PVC: %s", pvcName)
 	deleteOptions := &metav1.DeleteOptions{}

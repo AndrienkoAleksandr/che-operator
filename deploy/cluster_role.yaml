@@ -30,8 +30,11 @@ rules:
     resources:
       - infrastructures
       - oauths
+      - proxies
     verbs:
       - get
+      - list
+      - watch
   - apiGroups:
       - user.openshift.io
     resources:
@@ -49,3 +52,9 @@ rules:
       - update
       - patch
       - delete
+  - apiGroups:
+      - ''
+    resources:
+      - configmaps
+    verbs:
+      - get

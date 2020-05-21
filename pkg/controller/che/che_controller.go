@@ -17,22 +17,20 @@ import (
 	"encoding/pem"
 	"fmt"
 	"net/http"
-	"net/url"
 	"reflect"
 	"strconv"
-	"strings"
 	"time"
 
 	orgv1 "github.com/eclipse/che-operator/pkg/apis/org/v1"
 	"github.com/eclipse/che-operator/pkg/deploy"
 	"github.com/eclipse/che-operator/pkg/util"
+	configv1 "github.com/openshift/api/config/v1"
 	oauthv1 "github.com/openshift/api/config/v1"
 	consolev1 "github.com/openshift/api/console/v1"
 	oauth "github.com/openshift/api/oauth/v1"
 	routev1 "github.com/openshift/api/route/v1"
 	userv1 "github.com/openshift/api/user/v1"
 	"github.com/sirupsen/logrus"
-	"golang.org/x/net/http/httpproxy"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/api/extensions/v1beta1"
@@ -101,6 +99,9 @@ func add(mgr manager.Manager, r reconcile.Reconciler) error {
 		}
 		if err := oauthv1.AddToScheme(mgr.GetScheme()); err != nil {
 			logrus.Errorf("Failed to add OpenShift OAuth to scheme: %s", err)
+		}
+		if err := configv1.AddToScheme(mgr.GetScheme()); err != nil {
+			logrus.Errorf("Failed to add OpenShift Config to scheme: %s", err)
 		}
 		if hasConsolelinkObject() {
 			if err := consolev1.AddToScheme(mgr.GetScheme()); err != nil {
@@ -240,6 +241,7 @@ func (r *ReconcileChe) Reconcile(request reconcile.Request) (reconcile.Result, e
 		Client: r.client,
 		Scheme: r.scheme,
 	}
+
 	// Fetch the CheCluster instance
 	tests := r.tests
 	instance, err := r.GetCR(request)
@@ -309,6 +311,47 @@ func (r *ReconcileChe) Reconcile(request reconcile.Request) (reconcile.Result, e
 		if instance.Spec.Auth.OpenShiftoAuth {
 			if err := r.ReconcileFinalizer(instance); err != nil {
 				return reconcile.Result{}, err
+			}
+		}
+	}
+
+	proxy, err := util.ReadCheClusterProxyConfiguration(instance)
+	if isOpenShift4 {
+		clusterProxy := &configv1.Proxy{}
+		if err := r.client.Get(context.TODO(), types.NamespacedName{Name: "cluster"}, clusterProxy); err != nil {
+			logrus.Errorf("Failed to get OpenShift cluster-wide proxy configuration: %v", err)
+			return reconcile.Result{RequeueAfter: time.Second * 1}, err
+		}
+
+		if clusterProxy.Status.HTTPProxy != "" {
+			proxy, err = util.ReadClusterWideProxyConfiguration(clusterProxy)
+			if err != nil {
+				logrus.Errorf("Failed to parse OpenShift cluster-wide proxy configuration: %v", err)
+				return reconcile.Result{RequeueAfter: time.Second * 1}, err
+			}
+
+			if proxy.TrustedCAMapName != "" {
+				proxyCA, err := k8sclient.ReadOpenshiftConfigMap(proxy.TrustedCAMapName)
+				if err != nil {
+					logrus.Errorf("Failed to read configmap %s, error: %v", proxy.TrustedCAMapName, err)
+					return reconcile.Result{RequeueAfter: time.Second * 1}, err
+				}
+
+				if instance.Spec.Server.ServerTrustStoreConfigMapName == "" {
+					instance.Spec.Server.ServerTrustStoreConfigMapName = deploy.DefaultCheServerCertConfigMap()
+					if err := r.UpdateCheCRSpec(instance, "Server Trust Store configmap", instance.Spec.Server.ServerTrustStoreConfigMapName); err != nil {
+						return reconcile.Result{Requeue: true, RequeueAfter: time.Second * 1}, err
+					}
+				}
+				certConfigMap, err := deploy.SyncTrustStoreConfigMapToCluster(instance, proxyCA.Data, clusterAPI)
+				if certConfigMap == nil {
+					if err != nil {
+						logrus.Error(err)
+					} else {
+						logrus.Infof("Waiting on '%s' config map be created", instance.Spec.Server.ServerTrustStoreConfigMapName)
+					}
+					return reconcile.Result{}, err
+				}
 			}
 		}
 	}
@@ -401,7 +444,7 @@ func (r *ReconcileChe) Reconcile(request reconcile.Request) (reconcile.Result, e
 			// and NOT from the Openshift API Master URL (as in v3)
 			// So we also need the self-signed certificate to access them (same as the Che server)
 			(isOpenShift4 && instance.Spec.Auth.OpenShiftoAuth && !instance.Spec.Server.TlsSupport) {
-			if err := r.CreateTLSSecret(instance, "", "self-signed-certificate", clusterAPI); err != nil {
+			if err := r.CreateTLSSecret(instance, "", "self-signed-certificate", proxy, clusterAPI); err != nil {
 				return reconcile.Result{}, err
 			}
 		}
@@ -422,7 +465,7 @@ func (r *ReconcileChe) Reconcile(request reconcile.Request) (reconcile.Result, e
 			if err != nil {
 				logrus.Errorf("Failed to get OpenShift cluster public hostname. A secret with API crt will not be created and consumed by RH-SSO/Keycloak")
 			} else {
-				if err := r.CreateTLSSecret(instance, baseURL, "openshift-api-crt", clusterAPI); err != nil {
+				if err := r.CreateTLSSecret(instance, baseURL, "openshift-api-crt", proxy, clusterAPI); err != nil {
 					return reconcile.Result{}, err
 				}
 			}
@@ -790,7 +833,7 @@ func (r *ReconcileChe) Reconcile(request reconcile.Request) (reconcile.Result, e
 				}
 			}
 
-			deploymentStatus := deploy.SyncKeycloakDeploymentToCluster(instance, clusterAPI)
+			deploymentStatus := deploy.SyncKeycloakDeploymentToCluster(instance, proxy, clusterAPI)
 			if !tests {
 				if !deploymentStatus.Continue {
 					logrus.Info("Waiting on deployment 'keycloak' to be ready")
@@ -1085,16 +1128,16 @@ func (r *ReconcileChe) Reconcile(request reconcile.Request) (reconcile.Result, e
 
 	// create Che ConfigMap which is synced with CR and is not supposed to be manually edited
 	// controller will reconcile this CM with CR spec
-	cheEnv := deploy.GetConfigMapData(instance)
-	configMapStatus := deploy.SyncConfigMapToCluster(instance, cheEnv, clusterAPI)
+	cheConfigMap, err := deploy.SyncCheConfigMapToCluster(instance, proxy, clusterAPI)
 	if !tests {
-		if !configMapStatus.Continue {
-			logrus.Infof("Waiting on config map '%s' to be created", cheFlavor)
-			if configMapStatus.Err != nil {
-				logrus.Error(configMapStatus.Err)
+		if cheConfigMap == nil {
+			if err != nil {
+				logrus.Error(err)
+			} else {
+				logrus.Infof("Waiting on config map '%s' to be created", deploy.CheConfigMapName)
 			}
 
-			return reconcile.Result{Requeue: configMapStatus.Requeue}, configMapStatus.Err
+			return reconcile.Result{}, err
 		}
 	}
 
@@ -1104,11 +1147,11 @@ func (r *ReconcileChe) Reconcile(request reconcile.Request) (reconcile.Result, e
 	if tests {
 		cmResourceVersion = r.GetEffectiveConfigMap(instance, deploy.CheConfigMapName).ResourceVersion
 	} else {
-		cmResourceVersion = configMapStatus.ConfigMap.ResourceVersion
+		cmResourceVersion = cheConfigMap.ResourceVersion
 	}
 
 	// Create a new che deployment
-	deploymentStatus := deploy.SyncCheDeploymentToCluster(instance, cmResourceVersion, clusterAPI)
+	deploymentStatus := deploy.SyncCheDeploymentToCluster(instance, cmResourceVersion, proxy, clusterAPI)
 	if !tests {
 		if !deploymentStatus.Continue {
 			logrus.Infof("Waiting on deployment '%s' to be ready", cheFlavor)
@@ -1249,7 +1292,7 @@ func createConsoleLink(isOpenShift4 bool, protocol string, instance *orgv1.CheCl
 // GetEndpointTlsCrt creates a test TLS route and gets it to extract certificate chain
 // There's an easier way which is to read tls secret in default (3.11) or openshift-ingress (4.0) namespace
 // which however requires extra privileges for operator service account
-func (r *ReconcileChe) GetEndpointTlsCrt(instance *orgv1.CheCluster, endpointUrl string, clusterAPI deploy.ClusterAPI) (certificate []byte, err error) {
+func (r *ReconcileChe) GetEndpointTlsCrt(instance *orgv1.CheCluster, endpointUrl string, proxy *util.Proxy, clusterAPI deploy.ClusterAPI) (certificate []byte, err error) {
 	var requestURL string
 	var routeStatus deploy.RouteProvisioningStatus
 
@@ -1272,9 +1315,9 @@ func (r *ReconcileChe) GetEndpointTlsCrt(instance *orgv1.CheCluster, endpointUrl
 	//adding the proxy settings to the Transport object
 	transport := &http.Transport{}
 
-	if instance.Spec.Server.ProxyURL != "" {
-		logrus.Infof("Configuring proxy with %s to extract crt from the following URL: %s", instance.Spec.Server.ProxyURL, requestURL)
-		r.configureProxy(instance, transport)
+	if proxy.HttpProxy != "" {
+		logrus.Infof("Configuring proxy with %s to extract crt from the following URL: %s", proxy.HttpProxy, requestURL)
+		util.ConfigureProxy(instance, transport, proxy)
 	}
 
 	transport.TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
@@ -1308,57 +1351,6 @@ func (r *ReconcileChe) GetEndpointTlsCrt(instance *orgv1.CheCluster, endpointUrl
 		}
 	}
 	return certificate, nil
-}
-
-func (r *ReconcileChe) configureProxy(instance *orgv1.CheCluster, transport *http.Transport) {
-	proxyParts := strings.Split(instance.Spec.Server.ProxyURL, "://")
-	proxyProtocol := ""
-	proxyHost := ""
-	if len(proxyParts) == 1 {
-		proxyProtocol = ""
-		proxyHost = proxyParts[0]
-	} else {
-		proxyProtocol = proxyParts[0]
-		proxyHost = proxyParts[1]
-
-	}
-
-	proxyURL := proxyHost
-	if instance.Spec.Server.ProxyPort != "" {
-		proxyURL = proxyURL + ":" + instance.Spec.Server.ProxyPort
-	}
-
-	proxyUser := instance.Spec.Server.ProxyUser
-	proxyPassword := instance.Spec.Server.ProxyPassword
-	proxySecret := instance.Spec.Server.ProxySecret
-	user, password, err := util.K8sclient.ReadSecret(proxySecret, instance.Namespace)
-	if err == nil {
-		proxyUser = user
-		proxyPassword = password
-	} else {
-		logrus.Errorf("Failed to read '%s' secret: %s", proxySecret, err)
-	}
-	if len(proxyUser) > 1 && len(proxyPassword) > 1 {
-		proxyURL = proxyUser + ":" + proxyPassword + "@" + proxyURL
-	}
-
-	if proxyProtocol != "" {
-		proxyURL = proxyProtocol + "://" + proxyURL
-	}
-	config := httpproxy.Config{
-		HTTPProxy:  proxyURL,
-		HTTPSProxy: proxyURL,
-		NoProxy:    strings.Replace(instance.Spec.Server.NonProxyHosts, "|", ",", -1),
-	}
-	proxyFunc := config.ProxyFunc()
-	transport.Proxy = func(r *http.Request) (*url.URL, error) {
-		theProxyUrl, err := proxyFunc(r.URL)
-		if err != nil {
-			logrus.Warnf("Error when trying to get the proxy to access TLS endpoint URL: %s - %s", r.URL, err)
-		}
-		logrus.Infof("Using proxy: %s to access TLS endpoint URL: %s", theProxyUrl, r.URL)
-		return theProxyUrl, err
-	}
 }
 
 func hasConsolelinkObject() bool {

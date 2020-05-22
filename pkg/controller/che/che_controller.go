@@ -323,7 +323,7 @@ func (r *ReconcileChe) Reconcile(request reconcile.Request) (reconcile.Result, e
 			return reconcile.Result{RequeueAfter: time.Second * 1}, err
 		}
 
-		if clusterProxy.Status.HTTPProxy != "" {
+		if proxy.HttpProxy == "" && clusterProxy.Status.HTTPProxy != "" {
 			proxy, err = util.ReadClusterWideProxyConfiguration(clusterProxy)
 			if err != nil {
 				logrus.Errorf("Failed to parse OpenShift cluster-wide proxy configuration: %v", err)

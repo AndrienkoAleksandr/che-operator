@@ -10,7 +10,6 @@
 # Contributors:
 #   Red Hat, Inc. - initial API and implementation
 
-SCRIPTS_DIR=$(cd "$(dirname "$0")"; pwd)
 BASE_DIR="$(pwd)"
 QUIET=""
 
@@ -50,32 +49,65 @@ rm -Rf ${BASE_DIR}/generated/${CSV_NAME}/
 mkdir -p ${BASE_DIR}/generated/${CSV_NAME}/
 cp -R ${BASE_DIR}/${SRC_DIR}/* ${BASE_DIR}/generated/${CSV_NAME}/
 
-CSV_FILE="$(find ${BASE_DIR}/generated/${CSV_NAME}/*${VERSION}/ -name "${CSV_NAME}.*${VERSION}.clusterserviceversion.yaml" | tail -1)"; # echo "[INFO] CSV = ${CSV_FILE}"
-${SCRIPTS_DIR}/buildDigestMap.sh -w ${BASE_DIR} -c ${CSV_FILE} -v ${VERSION} ${QUIET}
+CSV_FILE="$(find ${BASE_DIR}/generated/${CSV_NAME}/*${VERSION}/ -name "${CSV_NAME}.*${VERSION}.clusterserviceversion.yaml" | tail -1)"; 
+echo find ${BASE_DIR}/generated/${CSV_NAME}/*${VERSION}/ -name "${CSV_NAME}.*${VERSION}.clusterserviceversion.yaml"
+echo "[INFO] CSV file path = ${CSV_FILE}"
 
-# inject relatedImages block
-names=" "
-count=1
-RELATED_IMAGES='. * { spec : { relatedImages: [ '
+echo ${BASE_DIR}/buildDigestMap.sh 
+${BASE_DIR}/buildDigestMap.sh -w ${BASE_DIR} -c ${CSV_FILE} -v ${VERSION} ${QUIET}
+
+# inject relatedImages to CSV
 if [[ ! "${QUIET}" ]]; then cat ${BASE_DIR}/generated/digests-mapping.txt; fi
-for mapping in $(cat ${BASE_DIR}/generated/digests-mapping.txt)
+
+CSV_FILE_IN_MEMORY=$(cat ${CSV_FILE})
+DEFAULT_IMAGES=$( yq -r '.spec.install.spec.deployments[0].spec.template.spec.containers[0].env[] |
+                select(.name | startswith("IMAGE_default")) | 
+                [.value]' "${CSV_FILE}" | \
+                # Convert default images list to yaml/json "array"
+                jq -s 'reduce .[] as $item ([]; . + $item)')
+OPERATOR_IMAGE=$( yq -r '.spec.install.spec.deployments[0].spec.template.spec.containers[0].image' "${CSV_FILE}")
+REQUIRED_IMAGES=$( echo "${DEFAULT_IMAGES}" | yq -r ". += [\"${OPERATOR_IMAGE}\"]")
+RELATED_IMAGE_PREFIX="RELATED_IMAGE_"
+
+echo "[INFO] Generate digest update for CSV file..."
+
+for mapping in $(cat "${BASE_DIR}/generated/digests-mapping.txt")
 do
   source=$(echo "${mapping}" | sed -e 's/\(.*\)=.*/\1/')
   dest=$(echo "${mapping}" | sed -e 's/.*=\(.*\)/\1/')
-  sed -i -e "s;${source};${dest};" ${CSV_FILE}
-  name=$(echo "${dest}" | sed -e 's;.*/\([^\/][^\/]*\)@.*;\1;')
-  nameWithSpaces=" ${name} "
-  if [[ "${names}" != *${nameWithSpaces}* ]]; then
-    if [ "${names}" != " " ]; then
-      RELATED_IMAGES="${RELATED_IMAGES},"
-    fi
-    RELATED_IMAGES="${RELATED_IMAGES} { name: \"${name}\", image: \"${dest}\", tag: \"${source}\"}"
-    names="${names} ${name} "
-  fi
+  name=$(echo "${source}" | sed -e 's;.*/\([^\/][^\/]*\);\1;' | sed -r 's/[:]+/-/g')
+
+  nameForEnv=$(echo "${name}" | sed -r 's/[:\.\@-]+/_/g')
+  relatedImageEnvName="${RELATED_IMAGE_PREFIX}${nameForEnv}"
+
+CSV_FILE_IN_MEMORY=$( echo "${CSV_FILE_IN_MEMORY}" | \
+ yq -rY "
+  ### Add images to annotations section
+  (.spec.install.spec.deployments[0].spec.template.metadata.annotations.\"olm.relatedImage.${name}\") = \"${dest}\"
+  |
+  ### Add image references to operator container Env
+  if (${REQUIRED_IMAGES} | index(\"${source}\") | not) then
+    (.spec.install.spec.deployments[0].spec.template.spec.containers[0].env ) += [{name: \"${relatedImageEnvName}\", valueFrom: {fieldRef: {fieldPath: \"metadata.annotations['olm.relatedImage.${name}']\"}}}]
+  else
+    (.spec.install.spec.deployments[0].spec.template.spec.containers[0].env[] | select(.value == \"${source}\") | .valueFrom ) = {fieldRef: {fieldPath: \"metadata.annotations['olm.relatedImage.${name}']\"}} |
+    .spec.install.spec.deployments[0].spec.template.spec.containers[0].env[] |= with_entries(if .key == \"value\" and .value == \"${source}\" then .value = empty  else  . end)
+  end 
+  |
+  ### Add relatedImages section
+  if (${REQUIRED_IMAGES} | index(\"${source}\")) then
+      (.spec.relatedImages) += [{ name: \"${name}\", image: \"${dest}\", tag: \"${source}\", annotation: \"default\" }]
+  else
+      (.spec.relatedImages) += [{ name: \"${name}\", image: \"${dest}\", tag: \"${source}\"}]
+  end
+  |
+  if \"${source}\" == \"${OPERATOR_IMAGE}\" then (.spec.install.spec.deployments[0].spec.template.spec.containers[0].image) = \"${dest}\" else . end
+  ")
 done
-RELATED_IMAGES="${RELATED_IMAGES} ] } }"
+
+echo "++++ ${CSV_FILE_IN_MEMORY}"
+
 mv ${CSV_FILE} ${CSV_FILE}.old
-yq -Y "$RELATED_IMAGES" ${CSV_FILE}.old > ${CSV_FILE}
+echo "${CSV_FILE_IN_MEMORY}" > ${CSV_FILE}
 sed -i ${CSV_FILE} -r -e "s|tag: |# tag: |" 
 rm -f ${CSV_FILE}.old
 

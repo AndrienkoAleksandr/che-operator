@@ -10,7 +10,6 @@
 # Contributors:
 #   Red Hat, Inc. - initial API and implementation
 
-SCRIPTS_DIR=$(cd "$(dirname "$0")"; pwd)
 BASE_DIR="$1"
 QUIET=""
 
@@ -23,6 +22,7 @@ if [[ ! -x $PODMAN ]]; then
   fi
 fi
 command -v yq >/dev/null 2>&1 || { echo "yq is not installed. Aborting."; exit 1; }
+command -v skopeo > /dev/null 2>&1 || { echo "skopeo is not installed. Aborting."; exit 1; }
 
 usage () {
 	echo "Usage:   $0 [-w WORKDIR] -c [/path/to/csv.yaml] "
@@ -53,6 +53,8 @@ OPERATOR_IMAGE=$(yq -r '.spec.install.spec.deployments[].spec.template.spec.cont
 
 REGISTRY_LIST=$(yq -r '.spec.install.spec.deployments[].spec.template.spec.containers[].env[] | select(.name | test("IMAGE_default_.*_registry"; "g")) | .value' "${CSV}")
 REGISTRY_IMAGES_ALL=""
+
+# Add registry images
 for registry in ${REGISTRY_LIST}; do
   registry="${registry/\@sha256:*/:${VERSION}}" # remove possible existing @sha256:... and use current version instead
   # echo -n "[INFO] Pull container ${registry} ..."
@@ -63,8 +65,9 @@ for registry in ${REGISTRY_LIST}; do
   REGISTRY_IMAGES_ALL="${REGISTRY_IMAGES_ALL} ${REGISTRY_IMAGES}"
 done
 
-rm -Rf ${BASE_DIR}/generated/digests-mapping.txt
-touch ${BASE_DIR}/generated/digests-mapping.txt
+DIGEST_FILE=${BASE_DIR}/generated/digests-mapping.txt
+rm -Rf ${DIGEST_FILE}
+touch ${DIGEST_FILE}
 for image in ${OPERATOR_IMAGE} ${IMAGE_LIST} ${REGISTRY_IMAGES_ALL}; do
   case ${image} in
     *@sha256:*)
@@ -78,8 +81,8 @@ for image in ${OPERATOR_IMAGE} ${IMAGE_LIST} ${REGISTRY_IMAGES_ALL}; do
         echo "    $digest # ${image}"
       else
         # for other build methods or for falling back to other registries when not found, can apply transforms here
-        if [[ -x ${SCRIPTS_DIR}/buildDigestMapAlternateURLs.sh ]]; then
-          . ${SCRIPTS_DIR}/buildDigestMapAlternateURLs.sh
+        if [[ -x ${BASE_DIR}/buildDigestMapAlternateURLs.sh ]]; then
+          . ${BASE_DIR}/buildDigestMapAlternateURLs.sh
         fi
       fi
       withoutTag="$(echo "${image}" | sed -e 's/^\(.*\):[^:]*$/\1/')"
@@ -92,5 +95,5 @@ for image in ${OPERATOR_IMAGE} ${IMAGE_LIST} ${REGISTRY_IMAGES_ALL}; do
     withDigest="docker.io/${withDigest}"
   fi
 
-  echo "${image}=${withDigest}" >> ${BASE_DIR}/generated/digests-mapping.txt
+  echo "${image}=${withDigest}" >> ${DIGEST_FILE}
 done

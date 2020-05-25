@@ -75,20 +75,22 @@ do
   source=$(echo "${mapping}" | sed -e 's/\(.*\)=.*/\1/')
   dest=$(echo "${mapping}" | sed -e 's/.*=\(.*\)/\1/')
   name=$(echo "${source}" | sed -e 's;.*/\([^\/][^\/]*\);\1;' | sed -r 's/[:]+/-/g')
+  annotationImageName="olm.relatedImage.${name}"
+  annotationImageName=${annotationImageName:0:63}
 
-  nameForEnv=$(echo "${name}" | sed -r 's/[:\.\@-]+/_/g')
+  nameForEnv=$(echo "${annotationImageName}" | sed -r 's/[:\.\@-]+/_/g')
   relatedImageEnvName="${RELATED_IMAGE_PREFIX}${nameForEnv}"
 
 CSV_FILE_IN_MEMORY=$( echo "${CSV_FILE_IN_MEMORY}" | \
  yq -rY "
   ### Add images to annotations section
-  (.spec.install.spec.deployments[0].spec.template.metadata.annotations.\"olm.relatedImage.${name}\") = \"${dest}\"
+  (.spec.install.spec.deployments[0].spec.template.metadata.annotations.\"${annotationImageName}\") = \"${dest}\"
   |
   ### Add image references to operator container Env
   if (${REQUIRED_IMAGES} | index(\"${source}\") | not) then
-    (.spec.install.spec.deployments[0].spec.template.spec.containers[0].env ) += [{name: \"${relatedImageEnvName}\", valueFrom: {fieldRef: {fieldPath: \"metadata.annotations['olm.relatedImage.${name}']\"}}}]
+    (.spec.install.spec.deployments[0].spec.template.spec.containers[0].env ) += [{name: \"${relatedImageEnvName}\", valueFrom: {fieldRef: {fieldPath: \"metadata.annotations['${annotationImageName}']\"}}}]
   else
-    (.spec.install.spec.deployments[0].spec.template.spec.containers[0].env[] | select(.value == \"${source}\") | .valueFrom ) = {fieldRef: {fieldPath: \"metadata.annotations['olm.relatedImage.${name}']\"}} |
+    (.spec.install.spec.deployments[0].spec.template.spec.containers[0].env[] | select(.value == \"${source}\") | .valueFrom ) = {fieldRef: {fieldPath: \"metadata.annotations['${annotationImageName}']\"}} |
     .spec.install.spec.deployments[0].spec.template.spec.containers[0].env[] |= with_entries(if .key == \"value\" and .value == \"${source}\" then .value = empty  else  . end)
   end 
   |

@@ -132,7 +132,7 @@ func GetCheConfigMapData(cr *orgv1.CheCluster, proxy *util.Proxy) (cheEnv map[st
 		} else {
 			cheWorkspaceNoProxy = cheWorkspaceNoProxy + "," + os.Getenv("KUBERNETES_SERVICE_HOST")
 		}
-		proxyJavaOpts, err = util.GenerateProxyJavaOpts(proxy)
+		proxyJavaOpts, err = util.GenerateProxyJavaOpts(proxy, cheWorkspaceNoProxy)
 		if err != nil {
 			logrus.Errorf("Failed to generate java proxy options: %v", err)
 		}

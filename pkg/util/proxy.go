@@ -130,8 +130,12 @@ func ReadCheClusterProxyConfiguration(checluster *orgv1.CheCluster) (*Proxy, err
 	}, nil
 }
 
-func GenerateProxyJavaOpts(proxy *Proxy) (javaOpts string, err error) {
-	noProxy := strings.Replace(proxy.NoProxy, ",", "|", -1)
+func GenerateProxyJavaOpts(proxy *Proxy, noProxy string) (javaOpts string, err error) {
+	if noProxy == "" {
+		noProxy = proxy.NoProxy
+	}
+	noProxy = strings.Replace(noProxy, ",", "|", -1)
+
 	proxyUserPassword := ""
 	if len(proxy.HttpUser) > 1 && len(proxy.HttpPassword) > 1 {
 		proxyUserPassword = " -Dhttp.proxyUser=" + proxy.HttpUser + " -Dhttp.proxyPassword=" + proxy.HttpPassword +

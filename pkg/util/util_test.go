@@ -68,7 +68,7 @@ func TestGenerateProxyJavaOpts(t *testing.T) {
 		logrus.Errorf("Failed to set env %s", err)
 	}
 
-	javaOpts, _ := GenerateProxyJavaOpts(proxy)
+	javaOpts, _ := GenerateProxyJavaOpts(proxy, "")
 	expectedJavaOpts := " -Dhttp.proxyHost=myproxy.com -Dhttp.proxyPort=1234 -Dhttps.proxyHost=myproxy.com " +
 		"-Dhttps.proxyPort=1234 -Dhttp.nonProxyHosts='localhost|myhost.com' -Dhttp.proxyUser=user " +
 		"-Dhttp.proxyPassword=password -Dhttps.proxyUser=user -Dhttps.proxyPassword=password"
@@ -88,9 +88,9 @@ func TestGenerateProxyJavaOpts(t *testing.T) {
 
 		NoProxy: "localhost,myhost.com",
 	}
-	javaOpts, _ = GenerateProxyJavaOpts(proxy)
+	javaOpts, _ = GenerateProxyJavaOpts(proxy, "test-no-proxy.com")
 	expectedJavaOptsWithoutUsernamePassword := " -Dhttp.proxyHost=myproxy.com -Dhttp.proxyPort=1234 -Dhttps.proxyHost=myproxy.com " +
-		"-Dhttps.proxyPort=1234 -Dhttp.nonProxyHosts='localhost|myhost.com'"
+		"-Dhttps.proxyPort=1234 -Dhttp.nonProxyHosts='test-no-proxy.com'"
 
 	if !reflect.DeepEqual(javaOpts, expectedJavaOptsWithoutUsernamePassword) {
 		t.Errorf("Test failed. Expected '%s' but got '%s'", expectedJavaOptsWithoutUsernamePassword, javaOpts)

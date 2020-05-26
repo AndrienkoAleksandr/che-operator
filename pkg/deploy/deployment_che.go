@@ -123,19 +123,6 @@ func getSpecCheDeployment(checluster *orgv1.CheCluster, cmResourceVersion string
 				},
 			},
 		}
-	} else if proxy.TrustedCAMapName != "" {
-		gitSelfSignedCertEnv = corev1.EnvVar{
-			Name: "CHE_GIT_SELF__SIGNED__CERT",
-			ValueFrom: &corev1.EnvVarSource{
-				ConfigMapKeyRef: &corev1.ConfigMapKeySelector{
-					Key: "ca-bundle.crt",
-					LocalObjectReference: corev1.LocalObjectReference{
-						Name: checluster.Spec.Server.ServerTrustStoreConfigMapName,
-					},
-					Optional: &optionalEnv,
-				},
-			},
-		}
 	}
 
 	memLimit := util.GetValue(checluster.Spec.Server.ServerMemoryLimit, DefaultServerMemoryLimit)

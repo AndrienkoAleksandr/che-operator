@@ -60,7 +60,7 @@ if [[ ! "${QUIET}" ]]; then cat ${BASE_DIR}/generated/digests-mapping.txt; fi
 
 CSV_FILE_IN_MEMORY=$(cat ${CSV_FILE})
 DEFAULT_IMAGES=$( yq -r '.spec.install.spec.deployments[0].spec.template.spec.containers[0].env[] |
-                select(.name | startswith("IMAGE_default")) | 
+                select(.name | startswith("RELATED_IMAGE")) | 
                 [.value]' "${CSV_FILE}" | \
                 # Convert default images list to yaml/json "array"
                 jq -s 'reduce .[] as $item ([]; . + $item)')

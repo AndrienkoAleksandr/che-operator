@@ -14,6 +14,7 @@ package deploy
 import (
 	"context"
 	"regexp"
+	"strconv"
 	"strings"
 
 	orgv1 "github.com/eclipse/che-operator/pkg/apis/org/v1"
@@ -31,7 +32,10 @@ import (
 )
 
 const (
-	KeycloakDeploymentName = "keycloak"
+	KeycloakDeploymentName   = "keycloak"
+	selectSslRequiredCommand = "OUT=$(psql keycloak -tAc \"SELECT 1 FROM REALM WHERE id = 'master'\"); " +
+		"if [ $OUT -eq 1 ]; then psql keycloak -tAc \"SELECT ssl_required FROM REALM WHERE id = 'master'\"; fi"
+	updateSslRequiredCommand = "psql keycloak -c \"update REALM set ssl_required='NONE' where id = 'master'\""
 )
 
 var (
@@ -39,13 +43,15 @@ var (
 	keycloakCustomDiffOpts = cmp.Options{
 		cmp.Comparer(func(x, y appsv1.Deployment) bool {
 			return x.Annotations["che.self-signed-certificate.version"] == y.Annotations["che.self-signed-certificate.version"] &&
-				x.Annotations["che.openshift-api-crt.version"] == y.Annotations["che.openshift-api-crt.version"]
+				x.Annotations["che.openshift-api-crt.version"] == y.Annotations["che.openshift-api-crt.version"] &&
+				x.Annotations["che.keycloak-ssl-required-updated"] == y.Annotations["che.keycloak-ssl-required-updated"]
 		}),
 	}
 	keycloakAdditionalDeploymentMerge = func(specDeployment *appsv1.Deployment, clusterDeployment *appsv1.Deployment) *appsv1.Deployment {
 		clusterDeployment.Spec = specDeployment.Spec
 		clusterDeployment.Annotations["che.self-signed-certificate.version"] = specDeployment.Annotations["che.self-signed-certificate.version"]
 		clusterDeployment.Annotations["che.openshift-api-crt.version"] = specDeployment.Annotations["che.openshift-api-crt.version"]
+		clusterDeployment.Annotations["che.keycloak-ssl-required-updated"] = specDeployment.Annotations["che.keycloak-ssl-required-updated"]
 		return clusterDeployment
 	}
 )
@@ -83,7 +89,8 @@ func getSpecKeycloakDeployment(checluster *orgv1.CheCluster, clusterDeployment *
 	if clusterDeployment != nil {
 		env := clusterDeployment.Spec.Template.Spec.Containers[0].Env
 		for _, e := range env {
-			if "TRUSTPASS" == e.Name {
+			// To be compatible with prev deployments when "TRUSTPASS" env was used
+			if "TRUSTPASS" == e.Name || "SSO_TRUSTSTORE_PASSWORD" == e.Name {
 				trustpass = e.Value
 				break
 			}
@@ -93,6 +100,7 @@ func getSpecKeycloakDeployment(checluster *orgv1.CheCluster, clusterDeployment *
 	terminationGracePeriodSeconds := int64(30)
 	cheCertSecretVersion := getSecretResourceVersion("self-signed-certificate", checluster.Namespace, clusterAPI)
 	openshiftApiCertSecretVersion := getSecretResourceVersion("openshift-api-crt", checluster.Namespace, clusterAPI)
+	sslRequiredUpdatedForMasterRealm := isSslRequiredUpdatedForMasterRealm(checluster, clusterAPI)
 
 	// add various certificates to Java trust store so that Keycloak can connect to OpenShift API
 	// certificate that OpenShift router uses (for 4.0 only)
@@ -117,7 +125,31 @@ func getSpecKeycloakDeployment(checluster *orgv1.CheCluster, clusterDeployment *
 		" -destkeystore " + jbossDir + "/openshift.jks" +
 		" -srcstorepass changeit -deststorepass " + trustpass
 
-	addCertToTrustStoreCommand := addRouterCrt + " && " + addOpenShiftAPICrt + " && " + addMountedCrt + " && " + addMountedServiceCrt + " && " + importJavaCacerts
+	customPublicCertsDir := "/public-certs"
+	customPublicCertsVolumeSource := corev1.VolumeSource{}
+	if checluster.Spec.Server.ServerTrustStoreConfigMapName != "" {
+		customPublicCertsVolumeSource = corev1.VolumeSource{
+			ConfigMap: &corev1.ConfigMapVolumeSource{
+				LocalObjectReference: corev1.LocalObjectReference{
+					Name: checluster.Spec.Server.ServerTrustStoreConfigMapName,
+				},
+			},
+		}
+	}
+	customPublicCertsVolume := corev1.Volume{
+		Name:         "che-public-certs",
+		VolumeSource: customPublicCertsVolumeSource,
+	}
+	customPublicCertsVolumeMount := corev1.VolumeMount{
+		Name:      "che-public-certs",
+		MountPath: customPublicCertsDir,
+	}
+	addCustomPublicCertsCommand := "if [[ -d \"" + customPublicCertsDir + "\" && -n \"$(find " + customPublicCertsDir + " -type f)\" ]]; then " +
+		"for certfile in " + customPublicCertsDir + "/* ; do " +
+		"keytool -importcert -alias CERT_$(basename $certfile) -keystore " + jbossDir + "/openshift.jks -file $certfile -storepass " + trustpass + " -noprompt; " +
+		"done; fi"
+
+	addCertToTrustStoreCommand := addRouterCrt + " && " + addOpenShiftAPICrt + " && " + addMountedCrt + " && " + addMountedServiceCrt + " && " + importJavaCacerts + " && " + addCustomPublicCertsCommand
 
 	// upstream Keycloak has a bit different mechanism of adding jks
 	changeConfigCommand := "echo Installing certificates into Keycloak && " +
@@ -205,7 +237,15 @@ func getSpecKeycloakDeployment(checluster *orgv1.CheCluster, clusterDeployment *
 			Value: "keycloak",
 		},
 		{
-			Name:  "TRUSTPASS",
+			Name:  "SSO_TRUSTSTORE",
+			Value: "openshift.jks",
+		},
+		{
+			Name:  "SSO_TRUSTSTORE_DIR",
+			Value: jbossDir,
+		},
+		{
+			Name:  "SSO_TRUSTSTORE_PASSWORD",
 			Value: trustpass,
 		},
 		{
@@ -425,6 +465,11 @@ func getSpecKeycloakDeployment(checluster *orgv1.CheCluster, clusterDeployment *
 			" && echo \"feature.token_exchange=enabled\nfeature.admin_fine_grained_authz=enabled\" > /opt/eap/standalone/configuration/profile.properties  " +
 			" && sed -i 's/WILDCARD/ANY/g' /opt/eap/bin/launch/keycloak-spi.sh && /opt/eap/bin/openshift-launch.sh -b 0.0.0.0"
 	}
+
+	if sslRequiredUpdatedForMasterRealm {
+		// update command to restart pod
+		command = "echo \"ssl_required WAS UPDATED for master realm.\" && " + command
+	}
 	args := []string{"-c", command}
 
 	deployment := &appsv1.Deployment{
@@ -439,6 +484,7 @@ func getSpecKeycloakDeployment(checluster *orgv1.CheCluster, clusterDeployment *
 			Annotations: map[string]string{
 				"che.self-signed-certificate.version": cheCertSecretVersion,
 				"che.openshift-api-crt.version":       openshiftApiCertSecretVersion,
+				"che.keycloak-ssl-required-updated":   strconv.FormatBool(sslRequiredUpdatedForMasterRealm),
 			},
 		},
 		Spec: appsv1.DeploymentSpec{
@@ -451,6 +497,9 @@ func getSpecKeycloakDeployment(checluster *orgv1.CheCluster, clusterDeployment *
 					Labels: labels,
 				},
 				Spec: corev1.PodSpec{
+					Volumes: []corev1.Volume{
+						customPublicCertsVolume,
+					},
 					Containers: []corev1.Container{
 						{
 							Name:            KeycloakDeploymentName,
@@ -493,6 +542,9 @@ func getSpecKeycloakDeployment(checluster *orgv1.CheCluster, clusterDeployment *
 								SuccessThreshold:    1,
 							},
 							Env: keycloakEnv,
+							VolumeMounts: []corev1.VolumeMount{
+								customPublicCertsVolumeMount,
+							},
 						},
 					},
 					TerminationGracePeriodSeconds: &terminationGracePeriodSeconds,
@@ -522,4 +574,66 @@ func getSecretResourceVersion(name string, namespace string, clusterAPI ClusterA
 		return ""
 	}
 	return secret.ResourceVersion
+}
+
+func isSslRequiredUpdatedForMasterRealm(checluster *orgv1.CheCluster, clusterAPI ClusterAPI) bool {
+	if util.IsTestMode() {
+		return false
+	}
+
+	clusterDeployment, _ := getClusterDeployment(KeycloakDeploymentName, checluster.Namespace, clusterAPI.Client)
+	if clusterDeployment == nil {
+		return false
+	}
+
+	value, err := strconv.ParseBool(clusterDeployment.ObjectMeta.Annotations["che.keycloak-ssl-required-updated"])
+	if err == nil && value {
+		return true
+	}
+
+	dbValue, _ := getSslRequiredForMasterRealm(checluster)
+	return dbValue == "NONE"
+}
+
+func getSslRequiredForMasterRealm(checluster *orgv1.CheCluster) (string, error) {
+	podName, err := util.K8sclient.GetDeploymentPod(PostgresDeploymentName, checluster.Namespace)
+	if err != nil {
+		return "", err
+	}
+
+	stdout, err := util.K8sclient.ExecIntoPod(podName, selectSslRequiredCommand, "", checluster.Namespace)
+	return strings.TrimSpace(stdout), err
+}
+
+func updateSslRequiredForMasterRealm(checluster *orgv1.CheCluster) error {
+	podName, err := util.K8sclient.GetDeploymentPod(PostgresDeploymentName, checluster.Namespace)
+	if err != nil {
+		return err
+	}
+
+	_, err = util.K8sclient.ExecIntoPod(podName, updateSslRequiredCommand, "Update ssl_required to NONE", checluster.Namespace)
+	return err
+}
+
+func ProvisionKeycloakResources(checluster *orgv1.CheCluster, clusterAPI ClusterAPI) error {
+	value, err := getSslRequiredForMasterRealm(checluster)
+	if err != nil {
+		return err
+	}
+
+	if value != "NONE" {
+		err := updateSslRequiredForMasterRealm(checluster)
+		if err != nil {
+			return err
+		}
+	}
+
+	keycloakProvisionCommand := GetKeycloakProvisionCommand(checluster)
+	podToExec, err := util.K8sclient.GetDeploymentPod(KeycloakDeploymentName, checluster.Namespace)
+	if err != nil {
+		logrus.Errorf("Failed to retrieve pod name. Further exec will fail")
+	}
+
+	_, err = util.K8sclient.ExecIntoPod(podToExec, keycloakProvisionCommand, "create realm, client and user", checluster.Namespace)
+	return err
 }

@@ -70,7 +70,5 @@ do
   "${packageFolderPath}/${newNightlyPackageVersion}/${packageName}.v${newNightlyPackageVersion}.clusterserviceversion.yaml" \
   > "${packageFolderPath}/${newNightlyPackageVersion}/${packageName}.v${newNightlyPackageVersion}.clusterserviceversion.yaml.diff" || true
 
-${CURRENT_DIR}/addDigests.sh -w ${CURRENT_DIR} -s ${packageName}/deploy/olm-catalog/${packageName} -n ${packageName} -v ${newNightlyPackageVersion}
-
 done
 cd "${CURRENT_DIR}"

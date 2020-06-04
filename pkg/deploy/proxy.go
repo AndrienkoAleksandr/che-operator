@@ -10,10 +10,12 @@
 //   Red Hat, Inc. - initial API and implementation
 //
 
-package util
+package deploy
 
 import (
 	"strings"
+
+	"github.com/eclipse/che-operator/pkg/util"
 
 	"golang.org/x/net/http/httpproxy"
 
@@ -22,25 +24,9 @@ import (
 
 	orgv1 "github.com/eclipse/che-operator/pkg/apis/org/v1"
 	configv1 "github.com/openshift/api/config/v1"
+
 	"github.com/sirupsen/logrus"
 )
-
-type Proxy struct {
-	HttpProxy    string
-	HttpUser     string
-	HttpPassword string
-	HttpHost     string
-	HttpPort     string
-
-	HttpsProxy    string
-	HttpsUser     string
-	HttpsPassword string
-	HttpsHost     string
-	HttpsPort     string
-
-	NoProxy          string
-	TrustedCAMapName string
-}
 
 func ReadClusterWideProxyConfiguration(clusterProxy *configv1.Proxy) (*Proxy, error) {
 	proxy := &Proxy{}
@@ -96,7 +82,7 @@ func ReadCheClusterProxyConfiguration(checluster *orgv1.CheCluster) (*Proxy, err
 	proxyPassword := checluster.Spec.Server.ProxyPassword
 	proxySecret := checluster.Spec.Server.ProxySecret
 	if len(proxySecret) > 0 {
-		user, password, err := k8sclient.ReadSecret(proxySecret, checluster.Namespace)
+		user, password, err := util.K8sclient.ReadSecret(proxySecret, checluster.Namespace)
 		if err == nil {
 			proxyUser = user
 			proxyPassword = password

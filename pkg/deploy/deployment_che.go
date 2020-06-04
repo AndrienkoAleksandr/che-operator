@@ -25,7 +25,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 )
 
-func SyncCheDeploymentToCluster(checluster *orgv1.CheCluster, cmResourceVersion string, proxy *util.Proxy, clusterAPI ClusterAPI) DeploymentProvisioningStatus {
+func SyncCheDeploymentToCluster(checluster *orgv1.CheCluster, cmResourceVersion string, proxy *Proxy, clusterAPI ClusterAPI) DeploymentProvisioningStatus {
 	clusterDeployment, err := getClusterDeployment(DefaultCheFlavor(checluster), checluster.Namespace, clusterAPI.Client)
 	if err != nil {
 		return DeploymentProvisioningStatus{
@@ -43,7 +43,7 @@ func SyncCheDeploymentToCluster(checluster *orgv1.CheCluster, cmResourceVersion 
 	return SyncDeploymentToCluster(checluster, specDeployment, clusterDeployment, nil, nil, clusterAPI)
 }
 
-func getSpecCheDeployment(checluster *orgv1.CheCluster, cmResourceVersion string, proxy *util.Proxy, clusterAPI ClusterAPI) (*appsv1.Deployment, error) {
+func getSpecCheDeployment(checluster *orgv1.CheCluster, cmResourceVersion string, proxy *Proxy, clusterAPI ClusterAPI) (*appsv1.Deployment, error) {
 	isOpenShift, _, err := util.DetectOpenShift()
 	if err != nil {
 		return nil, err

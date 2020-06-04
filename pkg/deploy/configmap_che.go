@@ -76,7 +76,7 @@ type CheConfigMap struct {
 	CheJGroupsKubernetesLabels             string `json:"KUBERNETES_LABELS,omitempty"`
 }
 
-func SyncCheConfigMapToCluster(checluster *orgv1.CheCluster, proxy *util.Proxy, clusterAPI ClusterAPI) (*corev1.ConfigMap, error) {
+func SyncCheConfigMapToCluster(checluster *orgv1.CheCluster, proxy *Proxy, clusterAPI ClusterAPI) (*corev1.ConfigMap, error) {
 	data := GetCheConfigMapData(checluster, proxy)
 	specConfigMap, err := GetSpecConfigMap(checluster, CheConfigMapName, data, clusterAPI)
 	if err != nil {
@@ -88,7 +88,7 @@ func SyncCheConfigMapToCluster(checluster *orgv1.CheCluster, proxy *util.Proxy, 
 
 // GetConfigMapData gets env values from CR spec and returns a map with key:value
 // which is used in CheCluster ConfigMap to configure CheCluster master behavior
-func GetCheConfigMapData(cr *orgv1.CheCluster, proxy *util.Proxy) (cheEnv map[string]string) {
+func GetCheConfigMapData(cr *orgv1.CheCluster, proxy *Proxy) (cheEnv map[string]string) {
 	cheHost := cr.Spec.Server.CheHost
 	keycloakURL := cr.Spec.Auth.IdentityProviderURL
 	isOpenShift, isOpenshift4, err := util.DetectOpenShift()
@@ -132,7 +132,7 @@ func GetCheConfigMapData(cr *orgv1.CheCluster, proxy *util.Proxy) (cheEnv map[st
 		} else {
 			cheWorkspaceNoProxy = cheWorkspaceNoProxy + "," + os.Getenv("KUBERNETES_SERVICE_HOST")
 		}
-		proxyJavaOpts, err = util.GenerateProxyJavaOpts(proxy, cheWorkspaceNoProxy)
+		proxyJavaOpts, err = GenerateProxyJavaOpts(proxy, cheWorkspaceNoProxy)
 		if err != nil {
 			logrus.Errorf("Failed to generate java proxy options: %v", err)
 		}

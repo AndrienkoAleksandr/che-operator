@@ -56,7 +56,7 @@ var (
 	}
 )
 
-func SyncKeycloakDeploymentToCluster(checluster *orgv1.CheCluster, proxy *util.Proxy, clusterAPI ClusterAPI) DeploymentProvisioningStatus {
+func SyncKeycloakDeploymentToCluster(checluster *orgv1.CheCluster, proxy *Proxy, clusterAPI ClusterAPI) DeploymentProvisioningStatus {
 	clusterDeployment, err := getClusterDeployment(KeycloakDeploymentName, checluster.Namespace, clusterAPI.Client)
 	if err != nil {
 		return DeploymentProvisioningStatus{
@@ -77,7 +77,7 @@ func SyncKeycloakDeploymentToCluster(checluster *orgv1.CheCluster, proxy *util.P
 func getSpecKeycloakDeployment(
 	checluster *orgv1.CheCluster,
 	clusterDeployment *appsv1.Deployment,
-	proxy *util.Proxy,
+	proxy *Proxy,
 	clusterAPI ClusterAPI) (*appsv1.Deployment, error) {
 	optionalEnv := true
 	labels := GetLabels(checluster, KeycloakDeploymentName)

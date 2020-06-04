@@ -135,7 +135,7 @@ func (r *ReconcileChe) CreateSecret(instance *orgv1.CheCluster, m map[string][]b
 	return nil
 }
 
-func (r *ReconcileChe) CreateTLSSecret(instance *orgv1.CheCluster, url string, name string, proxy *util.Proxy, clusterAPI deploy.ClusterAPI) (err error) {
+func (r *ReconcileChe) CreateTLSSecret(instance *orgv1.CheCluster, url string, name string, proxy *deploy.Proxy, clusterAPI deploy.ClusterAPI) (err error) {
 	// create a secret with either router tls cert (or OpenShift API crt) when on OpenShift infra
 	// and router is configured with a self signed certificate
 	// this secret is used by CRW server to reach RH SSO TLS endpoint

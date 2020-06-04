@@ -46,19 +46,19 @@ func (r *ReconcileChe) getProxyConfiguration(checluster *orgv1.CheCluster) (*dep
 	return proxy, nil
 }
 
-func (r *ReconcileChe) putProxyCertIntoTrustStoreConfigMap(checluster *orgv1.CheCluster, proxy *deploy.Proxy, clusterAPI deploy.ClusterAPI) deploy.ProvisioningStatus {
+func (r *ReconcileChe) putProxyCertIntoTrustStoreConfigMap(checluster *orgv1.CheCluster, proxy *deploy.Proxy, clusterAPI deploy.ClusterAPI) (bool, error) {
 	if checluster.Spec.Server.ServerTrustStoreConfigMapName == "" {
 		checluster.Spec.Server.ServerTrustStoreConfigMapName = deploy.DefaultCheServerCertConfigMap()
 		if err := r.UpdateCheCRStatus(checluster, "Server Trust Store configmap", checluster.Spec.Server.ServerTrustStoreConfigMapName); err != nil {
-			return deploy.ProvisioningStatus{Err: err}
+			return false, err
 		}
 	}
 
 	proxyCA, err := util.K8sclient.ReadOpenshiftConfigMap(proxy.TrustedCAMapName)
 	if err != nil {
-		return deploy.ProvisioningStatus{Err: err}
+		return false, err
 	}
 
 	certConfigMap, err := deploy.SyncTrustStoreConfigMapToCluster(checluster, proxyCA.Data, clusterAPI)
-	return deploy.ProvisioningStatus{Continue: certConfigMap != nil, Err: err}
+	return certConfigMap != nil, err
 }

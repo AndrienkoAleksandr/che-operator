@@ -322,13 +322,13 @@ func (r *ReconcileChe) Reconcile(request reconcile.Request) (reconcile.Result, e
 	}
 
 	if proxy.TrustedCAMapName != "" {
-		status := r.putProxyCertIntoTrustStoreConfigMap(instance, proxy, clusterAPI)
-		if !status.Continue {
+		provisioned, err := r.putProxyCertIntoTrustStoreConfigMap(instance, proxy, clusterAPI)
+		if !provisioned {
 			logrus.Infof("Waiting on provisioning OpenShift proxy certificate into '%s' config map", instance.Spec.Server.ServerTrustStoreConfigMapName)
-			if status.Err != nil {
+			if err != nil {
 				logrus.Error(err)
 			}
-			return reconcile.Result{}, status.Err
+			return reconcile.Result{}, err
 		}
 	}
 

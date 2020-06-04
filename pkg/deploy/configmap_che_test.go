@@ -28,7 +28,7 @@ func TestNewCheConfigMap(t *testing.T) {
 	cr.Spec.Server.CheHost = "myhostname.com"
 	cr.Spec.Server.TlsSupport = true
 	cr.Spec.Auth.OpenShiftoAuth = true
-	cheEnv := GetCheConfigMapData(cr, &util.Proxy{})
+	cheEnv := GetCheConfigMapData(cr, &Proxy{})
 	testCm, _ := GetSpecConfigMap(cr, CheConfigMapName, cheEnv, ClusterAPI{})
 	identityProvider := testCm.Data["CHE_INFRA_OPENSHIFT_OAUTH__IDENTITY__PROVIDER"]
 	_, isOpenshiftv4, _ := util.DetectOpenShift()
@@ -53,7 +53,7 @@ func TestConfigMapOverride(t *testing.T) {
 		"CHE_WORKSPACE_NO_PROXY": "myproxy.myhostname.com",
 	}
 	cr.Spec.Auth.OpenShiftoAuth = true
-	cheEnv := GetCheConfigMapData(cr, &util.Proxy{})
+	cheEnv := GetCheConfigMapData(cr, &Proxy{})
 	testCm, _ := GetSpecConfigMap(cr, CheConfigMapName, cheEnv, ClusterAPI{})
 	if testCm.Data["CHE_WORKSPACE_NO_PROXY"] != "myproxy.myhostname.com" {
 		t.Errorf("Test failed. Expected myproxy.myhostname.com but was %s", testCm.Data["CHE_WORKSPACE_NO_PROXY"])

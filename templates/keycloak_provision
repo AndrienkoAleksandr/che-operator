@@ -1,5 +1,4 @@
-$script config truststore --trustpass ${SSO_TRUSTSTORE_PASSWORD} ${SSO_TRUSTSTORE_DIR}/${SSO_TRUSTSTORE} \
-&& $script config credentials --server http://0.0.0.0:8080/auth \
+$script config credentials --server http://0.0.0.0:8080/auth \
                                         --realm master \
                                         --user $keycloakAdminUserName \
                                         --password $keycloakAdminPassword \

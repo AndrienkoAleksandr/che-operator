@@ -1107,12 +1107,10 @@ func (r *ReconcileChe) Reconcile(request reconcile.Request) (reconcile.Result, e
 	cheConfigMap, err := deploy.SyncCheConfigMapToCluster(instance, proxy, clusterAPI)
 	if !tests {
 		if cheConfigMap == nil {
+			logrus.Infof("Waiting on config map '%s' to be created", deploy.CheConfigMapName)
 			if err != nil {
 				logrus.Error(err)
-			} else {
-				logrus.Infof("Waiting on config map '%s' to be created", deploy.CheConfigMapName)
 			}
-
 			return reconcile.Result{}, err
 		}
 	}

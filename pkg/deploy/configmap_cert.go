@@ -25,6 +25,7 @@ func SyncTrustStoreConfigMapToCluster(checluster *orgv1.CheCluster, data map[str
 	if err != nil {
 		return nil, err
 	}
+	specConfigMap.ObjectMeta.Labels["config.openshift.io/inject-trusted-cabundle"] = "true"
 
 	clusterConfigMap, err := getClusterConfigMap(specConfigMap.Name, specConfigMap.Namespace, clusterAPI.Client)
 	if err != nil {
@@ -38,8 +39,10 @@ func SyncTrustStoreConfigMapToCluster(checluster *orgv1.CheCluster, data map[str
 	}
 
 	// "ca-bundle.crt" is a key containing CA(s) in a PEM format
-	if clusterConfigMap.Data["ca-bundle.crt"] == "" && specConfigMap.Data["ca-bundle.crt"] != "" {
-		clusterConfigMap.Data["ca-bundle.crt"] = specConfigMap.Data["ca-bundle.crt"]
+	// if clusterConfigMap.Data["ca-bundle.crt"] == "" && specConfigMap.Data["ca-bundle.crt"] != "" {
+	if clusterConfigMap.ObjectMeta.Labels["config.openshift.io/inject-trusted-cabundle"] != "true" {
+		clusterConfigMap.ObjectMeta.Labels["config.openshift.io/inject-trusted-cabundle"] = "true"
+		// clusterConfigMap.Data["ca-bundle.crt"] = specConfigMap.Data["ca-bundle.crt"]
 		logrus.Infof("Updating existed object: %s, name: %s", specConfigMap.Kind, specConfigMap.Name)
 		err := clusterAPI.Client.Update(context.TODO(), clusterConfigMap)
 		return nil, err

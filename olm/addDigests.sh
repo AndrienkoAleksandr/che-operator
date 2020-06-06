@@ -74,13 +74,18 @@ do
     # Image label to set image target. For example: 'devfile-registry-image'
     imageLabel=$( echo "${mapping}" | sed -e 's;.*=\(.*\)=.*;\1;' )
     name=$( echo "${dest}" | sed -e 's;.*/\([^\/][^\/]*\)@.*;\1;' )
-    tag=$(echo ${source} | sed -e 's;.*:\(.*\);\1;')
+    tagOrDigest=""
+    if [[ ${source} == *"@"* ]]; then
+      tagOrDigest="@${source#*@}"
+    elif [[ ${source} == *":"* ]]; then
+      tagOrDigest="${source#*:}"
+    fi
 
     if [[ ${imageLabel} == "plugin-registry-image" ]] || [[ ${imageLabel} == "devfile-registry-image" ]]; then
       # Image tag could contains invalid for Env variable name characters, so let's encode it using base32.
-      # But alphabet of base32 uses one invalid for env variable name character '=' at the env of the line, so let's replace it by '_'. 
+      # But alphabet of base32 uses one invalid for env variable name character '=' at the end of the line, so let's replace it by '_'. 
       # To recovery original tag should be done opposite actions: replace '_' to '=', and decode string using 'base32 -d'.
-      encodedTag=$(echo ${tag} | base32 -w 0 | tr = _ )
+      encodedTag=$(echo ${tagOrDigest} | base32 -w 0 | tr = _ )
       relatedImageEnvName=$(echo "${RELATED_IMAGE_PREFIX}${name}_${imageLabel}_${encodedTag}" | sed -r 's/[-.]/_/g' )
       ENV="{ name: \"${relatedImageEnvName}\", value: \"${dest}\"}"
       if [[ -z ${RELATED_IMAGES_ENV} ]]; then
@@ -90,7 +95,7 @@ do
       fi
     fi
 
-    RELATED_IMAGE="{ name: \"${name}-${tag}\", image: \"${dest}\", tag: \"${source}\"}"
+    RELATED_IMAGE="{ name: \"${name}-${tagOrDigest}\", image: \"${dest}\", tag: \"${source}\"}"
     if [[ -z ${RELATED_IMAGES} ]]; then
       RELATED_IMAGES="${RELATED_IMAGE}"
     else
@@ -114,4 +119,4 @@ do
 done
 
 # cleanup
-rm -fr ${BASE_DIR}/generated
+# rm -fr ${BASE_DIR}/generated

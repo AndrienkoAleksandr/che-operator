@@ -1125,7 +1125,7 @@ func (r *ReconcileChe) Reconcile(request reconcile.Request) (reconcile.Result, e
 	}
 
 	// Create a new che deployment
-	deploymentStatus := deploy.SyncCheDeploymentToCluster(instance, cmResourceVersion, proxy, clusterAPI)
+	deploymentStatus := deploy.SyncCheDeploymentToCluster(instance, cmResourceVersion, clusterAPI)
 	if !tests {
 		if !deploymentStatus.Continue {
 			logrus.Infof("Waiting on deployment '%s' to be ready", cheFlavor)

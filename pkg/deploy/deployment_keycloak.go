@@ -101,30 +101,6 @@ func getSpecKeycloakDeployment(
 		}
 	}
 
-	customPublicCertsDir := "/public-certs"
-	customPublicCertsVolumeSource := corev1.VolumeSource{}
-	if checluster.Spec.Server.ServerTrustStoreConfigMapName != "" {
-		customPublicCertsVolumeSource = corev1.VolumeSource{
-			ConfigMap: &corev1.ConfigMapVolumeSource{
-				LocalObjectReference: corev1.LocalObjectReference{
-					Name: checluster.Spec.Server.ServerTrustStoreConfigMapName,
-				},
-			},
-		}
-	}
-	customPublicCertsVolume := corev1.Volume{
-		Name:         "che-public-certs",
-		VolumeSource: customPublicCertsVolumeSource,
-	}
-	customPublicCertsVolumeMount := corev1.VolumeMount{
-		Name:      "che-public-certs",
-		MountPath: customPublicCertsDir,
-	}
-	addCustomPublicCertsCommand := "if [[ -d \"" + customPublicCertsDir + "\" && -n \"$(find " + customPublicCertsDir + " -type f)\" ]]; then " +
-		"for certfile in " + customPublicCertsDir + "/* ; do " +
-		"keytool -importcert -alias CERT_$(basename $certfile) -keystore " + jbossDir + "/openshift.jks -file $certfile -storepass " + trustpass + " -noprompt; " +
-		"done; fi"
-
 	terminationGracePeriodSeconds := int64(30)
 	cheCertSecretVersion := getSecretResourceVersion("self-signed-certificate", checluster.Namespace, clusterAPI)
 	openshiftApiCertSecretVersion := getSecretResourceVersion("openshift-api-crt", checluster.Namespace, clusterAPI)
@@ -152,6 +128,30 @@ func getSpecKeycloakDeployment(
 	importJavaCacerts := "keytool -importkeystore -srckeystore /etc/pki/ca-trust/extracted/java/cacerts" +
 		" -destkeystore " + jbossDir + "/openshift.jks" +
 		" -srcstorepass changeit -deststorepass " + trustpass
+
+	customPublicCertsDir := "/public-certs"
+	customPublicCertsVolumeSource := corev1.VolumeSource{}
+	if checluster.Spec.Server.ServerTrustStoreConfigMapName != "" {
+		customPublicCertsVolumeSource = corev1.VolumeSource{
+			ConfigMap: &corev1.ConfigMapVolumeSource{
+				LocalObjectReference: corev1.LocalObjectReference{
+					Name: checluster.Spec.Server.ServerTrustStoreConfigMapName,
+				},
+			},
+		}
+	}
+	customPublicCertsVolume := corev1.Volume{
+		Name:         "che-public-certs",
+		VolumeSource: customPublicCertsVolumeSource,
+	}
+	customPublicCertsVolumeMount := corev1.VolumeMount{
+		Name:      "che-public-certs",
+		MountPath: customPublicCertsDir,
+	}
+	addCustomPublicCertsCommand := "if [[ -d \"" + customPublicCertsDir + "\" && -n \"$(find " + customPublicCertsDir + " -type f)\" ]]; then " +
+		"for certfile in " + customPublicCertsDir + "/* ; do " +
+		"keytool -importcert -alias CERT_$(basename $certfile) -keystore " + jbossDir + "/openshift.jks -file $certfile -storepass " + trustpass + " -noprompt; " +
+		"done; fi"
 
 	addCertToTrustStoreCommand := addRouterCrt + " && " + addOpenShiftAPICrt + " && " + addMountedCrt + " && " + addMountedServiceCrt + " && " + importJavaCacerts + " && " + addCustomPublicCertsCommand
 

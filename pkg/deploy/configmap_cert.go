@@ -19,12 +19,14 @@ import (
 	corev1 "k8s.io/api/core/v1"
 )
 
-func SyncTrustStoreConfigMapToCluster(checluster *orgv1.CheCluster, data map[string]string, clusterAPI ClusterAPI) (*corev1.ConfigMap, error) {
+func SyncTrustStoreConfigMapToCluster(checluster *orgv1.CheCluster, clusterAPI ClusterAPI) (*corev1.ConfigMap, error) {
 	name := checluster.Spec.Server.ServerTrustStoreConfigMapName
-	specConfigMap, err := GetSpecConfigMap(checluster, name, data, clusterAPI)
+	specConfigMap, err := GetSpecConfigMap(checluster, name, map[string]string{}, clusterAPI)
 	if err != nil {
 		return nil, err
 	}
+
+	// OpenShift will automatically injects all certs into the configmap
 	specConfigMap.ObjectMeta.Labels["config.openshift.io/inject-trusted-cabundle"] = "true"
 
 	clusterConfigMap, err := getClusterConfigMap(specConfigMap.Name, specConfigMap.Namespace, clusterAPI.Client)
@@ -38,11 +40,8 @@ func SyncTrustStoreConfigMapToCluster(checluster *orgv1.CheCluster, data map[str
 		return nil, err
 	}
 
-	// "ca-bundle.crt" is a key containing CA(s) in a PEM format
-	// if clusterConfigMap.Data["ca-bundle.crt"] == "" && specConfigMap.Data["ca-bundle.crt"] != "" {
 	if clusterConfigMap.ObjectMeta.Labels["config.openshift.io/inject-trusted-cabundle"] != "true" {
 		clusterConfigMap.ObjectMeta.Labels["config.openshift.io/inject-trusted-cabundle"] = "true"
-		// clusterConfigMap.Data["ca-bundle.crt"] = specConfigMap.Data["ca-bundle.crt"]
 		logrus.Infof("Updating existed object: %s, name: %s", specConfigMap.Kind, specConfigMap.Name)
 		err := clusterAPI.Client.Update(context.TODO(), clusterConfigMap)
 		return nil, err

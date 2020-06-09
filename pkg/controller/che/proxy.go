@@ -54,11 +54,6 @@ func (r *ReconcileChe) putOpenShiftCertsIntoConfigMap(checluster *orgv1.CheClust
 		}
 	}
 
-	proxyCA, err := util.K8sclient.ReadOpenshiftConfigMap(proxy.TrustedCAMapName)
-	if err != nil {
-		return false, err
-	}
-
-	certConfigMap, err := deploy.SyncTrustStoreConfigMapToCluster(checluster, proxyCA.Data, clusterAPI)
+	certConfigMap, err := deploy.SyncTrustStoreConfigMapToCluster(checluster, clusterAPI)
 	return certConfigMap != nil, err
 }

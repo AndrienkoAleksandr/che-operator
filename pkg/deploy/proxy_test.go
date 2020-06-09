@@ -27,26 +27,6 @@ const (
 	expectedNoProxy                         = "localhost,myhost.com"
 )
 
-// func TestGenerateProxyEnvs(t *testing.T) {
-
-// 	proxyUrl, noProxy, _ := GenerateProxyEnvs(proxyHost, proxyPort, nonProxyHosts, proxyUser, proxyPassword, "", "")
-
-// 	if !reflect.DeepEqual(proxyUrl, expectedProxyURLWithUsernamePassword) {
-// 		t.Errorf("Test failed. Expected %s but got %s", expectedProxyURLWithUsernamePassword, proxyUrl)
-// 	}
-
-// 	if !reflect.DeepEqual(noProxy, expectedNoProxy) {
-// 		t.Errorf("Test failed. Expected %s but got %s", expectedNoProxy, noProxy)
-
-// 	}
-
-// 	proxyUrl, _, _ = GenerateProxyEnvs(proxyHost, proxyPort, nonProxyHosts, "", proxyPassword, "", "")
-// 	if !reflect.DeepEqual(proxyUrl, expectedProxyURLWithoutUsernamePassword) {
-// 		t.Errorf("Test failed. Expected %s but got %s", expectedProxyURLWithoutUsernamePassword, proxyUrl)
-// 	}
-
-// }
-
 func TestGenerateProxyJavaOpts(t *testing.T) {
 	proxy := &Proxy{
 		HttpProxy:    "https://user:password@myproxy.com:1234",

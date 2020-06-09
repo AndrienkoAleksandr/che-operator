@@ -32,7 +32,7 @@ spec:
     cheWorkspaceClusterRole: ''
     # when set to true the operator will attempt to get a secret in OpenShift router namespace
     # to add it to Java trust store of Che server. Requires cluster-admin privileges for operator service account
-    selfSignedCert: true
+    selfSignedCert: false
     # Name of the config-map with public certificates to add to Java trust store of the Che server.
     serverTrustStoreConfigMapName: ''
     # If enabled then the certificate from `che-git-self-signed-cert` config map

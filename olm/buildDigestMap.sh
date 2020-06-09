@@ -82,8 +82,14 @@ writeDigest() {
           . ${BASE_DIR}/buildDigestMapAlternateURLs.sh
         fi
       fi
-      withoutTag="$(echo "${image}" | sed -e 's/^\(.*\):[^:]*$/\1/')"
-      withDigest="${withoutTag}@${digest}";;
+      if [[ -z ${digest} ]]; then
+        echo "==================== Failed to get digest for image: ${image}======================"
+        withoutTag=""
+        withDigest=""
+      else
+        withoutTag="$(echo "${image}" | sed -e 's/^\(.*\):[^:]*$/\1/')"
+        withDigest="${withoutTag}@${digest}";
+      fi
   esac
   dots="${withDigest//[^\.]}"
   separators="${withDigest//[^\/]}"
@@ -92,7 +98,9 @@ writeDigest() {
     withDigest="docker.io/${withDigest}"
   fi
 
-  echo "${image}=${imageType}=${withDigest}" >> ${DIGEST_FILE}
+  if [[ -n ${withDigest} ]]; then
+    echo "${image}=${imageType}=${withDigest}" >> ${DIGEST_FILE}
+  fi
 }
 
 DIGEST_FILE=${BASE_DIR}/generated/digests-mapping.txt

@@ -12,6 +12,12 @@
       ]
     },
     {
+      "type": "bashdb",
+      "request": "launch",
+      "name": "Bash-Debug (simplest configuration)",
+      "program": "${file}"
+    },
+    {
       "name": "Launch Current File",
       "type": "go",
       "request": "launch",

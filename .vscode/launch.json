@@ -36,7 +36,7 @@
         "CHE_IDENTITY_SECRET": "che-identity-secret",
         "CHE_IDENTITY_POSTGRES_SECRET": "che-identity-postgres-secret",
         "CHE_POSTGRES_SECRET": "che-postgres-secret",
-        "CHE_SERVER_CERT_CONFIG_MAP": "ca-certs"
+        "SERVER_TRUST_STORE_CONFIGMAP_NAME": "ca-certs"
       },
       "cwd": "${workspaceFolder}",
       "args": [

@@ -46,10 +46,10 @@ func (r *ReconcileChe) getProxyConfiguration(checluster *orgv1.CheCluster) (*dep
 	return proxy, nil
 }
 
-func (r *ReconcileChe) putProxyCertIntoTrustStoreConfigMap(checluster *orgv1.CheCluster, proxy *deploy.Proxy, clusterAPI deploy.ClusterAPI) (bool, error) {
+func (r *ReconcileChe) putOpenShiftCertsIntoConfigMap(checluster *orgv1.CheCluster, proxy *deploy.Proxy, clusterAPI deploy.ClusterAPI) (bool, error) {
 	if checluster.Spec.Server.ServerTrustStoreConfigMapName == "" {
-		checluster.Spec.Server.ServerTrustStoreConfigMapName = deploy.DefaultCheServerCertConfigMap()
-		if err := r.UpdateCheCRSpec(checluster, "truststore configmap", deploy.DefaultCheServerCertConfigMap()); err != nil {
+		checluster.Spec.Server.ServerTrustStoreConfigMapName = deploy.DefaultServerTrustStoreConfigMapName()
+		if err := r.UpdateCheCRSpec(checluster, "truststore configmap", deploy.DefaultServerTrustStoreConfigMapName()); err != nil {
 			return false, err
 		}
 	}

@@ -1,6 +1,5 @@
 connect_to_keycloak() {
   {{ .Script }} config credentials --server http://0.0.0.0:8080/auth --realm master --user {{ .KeycloakAdminUserName }} --password {{ .KeycloakAdminPassword }}
-  {{ .Script }} config truststore --trustpass ${SSO_TRUSTSTORE_PASSWORD} ${SSO_TRUSTSTORE_DIR}/${SSO_TRUSTSTORE}
 }
 
 create_identity_provider() {
@@ -99,4 +98,4 @@ enable_openshift_token-exchange() {
 }
 
 set -x
-connect_to_keycloak && create_identity_provider && default_to_openshift_login && enable_openshift_token-exchange
+connect_to_keycloak && create_identity_provider

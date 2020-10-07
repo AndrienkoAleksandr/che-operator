@@ -37,7 +37,7 @@ func SyncIdentityProviderToCluster(deployContext *DeployContext, cheHost string,
 
 	keycloakLabels := GetLabels(instance, "keycloak")
 
-	serviceStatus := SyncServiceToCluster(deployContext, "keycloak", []string{"http"}, []int32{8080}, keycloakLabels)
+	serviceStatus := SyncServiceToCluster(deployContext, "keycloak", []string{""}, []int32{8443}, keycloakLabels)
 	if !tests {
 		if !serviceStatus.Continue {
 			logrus.Info("Waiting on service 'keycloak' to be ready")
@@ -48,6 +48,22 @@ func SyncIdentityProviderToCluster(deployContext *DeployContext, cheHost string,
 			return false, serviceStatus.Err
 		}
 	}
+
+	// 	apiVersion: v1
+//     kind: Service
+//     metadata:
+//       annotations:
+//         description: The web server's https port.
+//       labels:
+//         application: '${APPLICATION_NAME}'
+//       name: '${APPLICATION_NAME}'
+//     spec:
+//       ports:
+//         - port: 8443
+//           targetPort: 8443
+//       selector:
+//         deploymentConfig: '${APPLICATION_NAME}'
+
 
 	exposureStrategy := util.GetServerExposureStrategy(instance, DefaultServerExposureStrategy)
 	singleHostExposureType := GetSingleHostExposureType(instance)
@@ -115,6 +131,7 @@ func SyncIdentityProviderToCluster(deployContext *DeployContext, cheHost string,
 			// create Keycloak route
 			additionalLabels := deployContext.CheCluster.Spec.Auth.IdentityProviderRoute.Labels
 			route, err := SyncRouteToCluster(deployContext, "keycloak", "", "keycloak", 8080, additionalLabels)
+
 			if !tests {
 				if route == nil {
 					logrus.Info("Waiting on route 'keycloak' to be ready")
@@ -159,6 +176,7 @@ func SyncIdentityProviderToCluster(deployContext *DeployContext, cheHost string,
 	}
 
 	if !tests {
+		// execs...
 		if !instance.Status.KeycloakProvisoned {
 			if err := ProvisionKeycloakResources(deployContext); err != nil {
 				logrus.Error(err)
@@ -178,6 +196,7 @@ func SyncIdentityProviderToCluster(deployContext *DeployContext, cheHost string,
 		}
 	}
 
+	// Oauth ==========================================================
 	if isOpenShift {
 		doInstallOpenShiftoAuthProvider := instance.Spec.Auth.OpenShiftoAuth
 		if doInstallOpenShiftoAuthProvider {

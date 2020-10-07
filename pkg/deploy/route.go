@@ -13,7 +13,7 @@ package deploy
 
 import (
 	"context"
-	"fmt"
+	// "fmt"
 	"reflect"
 
 	"github.com/google/go-cmp/cmp"
@@ -71,22 +71,22 @@ func SyncRouteToCluster(
 		return nil, nil
 	}
 
-	diffOpts := routeDiffOpts
-	if host != "" {
-		diffOpts = routeWithHostDiffOpts
-	}
-	diff := cmp.Diff(clusterRoute, specRoute, diffOpts)
-	if len(diff) > 0 {
-		logrus.Infof("Deleting existed object: %s, name: %s", clusterRoute.Kind, clusterRoute.Name)
-		fmt.Printf("Difference:\n%s", diff)
+	// diffOpts := routeDiffOpts
+	// if host != "" {
+	// 	diffOpts = routeWithHostDiffOpts
+	// }
+	// diff := cmp.Diff(clusterRoute, specRoute, diffOpts)
+	// if len(diff) > 0 {
+	// 	logrus.Infof("Deleting existed object: %s, name: %s", clusterRoute.Kind, clusterRoute.Name)
+	// 	fmt.Printf("Difference:\n%s", diff)
 
-		err := deployContext.ClusterAPI.Client.Delete(context.TODO(), clusterRoute)
-		if !errors.IsNotFound(err) {
-			return nil, err
-		}
+	// 	err := deployContext.ClusterAPI.Client.Delete(context.TODO(), clusterRoute)
+	// 	if !errors.IsNotFound(err) {
+	// 		return nil, err
+	// 	}
 
-		return nil, nil
-	}
+	// 	return nil, nil
+	// }
 
 	return clusterRoute, nil
 }
@@ -139,6 +139,54 @@ func GetSpecRoute(
 		labels = GetLabels(deployContext.CheCluster, name)
 	}
 	MergeLabels(labels, additionalLabels)
+
+	if name == "keycloak" {
+//   - apiVersion: v1
+//     id: '${APPLICATION_NAME}'
+//     kind: Route
+//     metadata:
+//       annotations:
+//         description: Route for application's https service.
+//       labels:
+//         application: '${APPLICATION_NAME}'
+//       name: '${APPLICATION_NAME}'
+//     spec:
+//       host: '${HOSTNAME_HTTPS}'
+//       tls:
+//         termination: passthrough
+//       to:
+//         name: '${APPLICATION_NAME}'
+
+		route := &routev1.Route{
+			TypeMeta: metav1.TypeMeta{
+				Kind:       "Route",
+				APIVersion: routev1.SchemeGroupVersion.String(),
+			},
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      name,
+				Namespace: deployContext.CheCluster.Namespace,
+				Labels:    labels,
+			},
+			Spec: routev1.RouteSpec{
+				Host: host,
+				TLS: &routev1.TLSConfig{
+					Termination: routev1.TLSTerminationPassthrough,
+				},
+				To: routev1.RouteTargetReference{
+					Kind:   "Service",
+					Name:   serviceName,
+				},
+			},
+		}
+
+		err := controllerutil.SetControllerReference(deployContext.CheCluster, route, deployContext.ClusterAPI.Scheme)
+		if err != nil {
+			return nil, err
+		}
+
+		return route, nil
+	}
+
 
 	weight := int32(100)
 

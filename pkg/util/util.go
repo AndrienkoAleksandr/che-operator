@@ -230,6 +230,8 @@ func getClusterPublicHostnameForOpenshiftV3() (hostname string, err error) {
 // getClusterPublicHostnameForOpenshiftV3 is a way to get OpenShift API public DNS/IP
 // to be used in OpenShift oAuth provider as baseURL
 func getClusterPublicHostnameForOpenshiftV4() (hostname string, err error) {
+
+	return "https://api.crc.testing:6443", nil
 	http.DefaultTransport.(*http.Transport).TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
 	client := &http.Client{}
 	kubeApi := os.Getenv("KUBERNETES_PORT_443_TCP_ADDR")

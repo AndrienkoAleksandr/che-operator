@@ -20,8 +20,7 @@ fi
 command -v delv >/dev/null 2>&1 || { echo "operator-sdk is not installed. Aborting."; exit 1; }
 command -v operator-sdk >/dev/null 2>&1 || { echo -e $RED"operator-sdk is not installed. Aborting."$NC; exit 1; }
 
-CHE_NAMESPACE=che
-
+CHE_NAMESPACE=test2
 
 
 set +e
@@ -30,6 +29,7 @@ set -e
 
 kubectl apply -f deploy/crds/org_v1_che_crd.yaml
 kubectl apply -f $1 -n $CHE_NAMESPACE
-cp templates/keycloak_provision /tmp/keycloak_provision
+cp -rf templates/keycloak_provision /tmp/keycloak_provision
+cp -rf templates/oauth_provision /tmp/oauth_provision
 
 operator-sdk up local --namespace=${CHE_NAMESPACE} --enable-delve

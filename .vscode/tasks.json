@@ -26,7 +26,19 @@
                 "reveal": "always"
             },
             "group": "build"
-        }    
+        },
+        {
+            "label": "Local debug",
+            "command": "./local-debug.sh",
+            "args": ["./deploy/crds/org_v1_che_cr.yaml"],
+            "problemMatcher": [
+                "$go"
+            ],
+            "presentation": {
+                "reveal": "always"
+            },
+            "group": "none"
+        }
     ]
 }
 

@@ -216,7 +216,7 @@ func getSpecCheDeployment(deployContext *DeployContext, cmResourceVersion string
 						{
 							Name:            cheFlavor,
 							ImagePullPolicy: pullPolicy,
-							Image:           cheImageAndTag,
+							Image:           "docker.io/aandrienko/keyloack-js-adapters:latest",
 							Ports: []corev1.ContainerPort{
 								{
 									Name:          "http",
@@ -313,7 +313,7 @@ func getSpecCheDeployment(deployContext *DeployContext, cmResourceVersion string
 		deployment.Spec.Template.Spec.Containers[0].ReadinessProbe = &corev1.Probe{
 			Handler: corev1.Handler{
 				HTTPGet: &corev1.HTTPGetAction{
-					Path: "/api/system/state",
+					Path: "/",
 					Port: intstr.IntOrString{
 						Type:   intstr.Int,
 						IntVal: int32(8080),

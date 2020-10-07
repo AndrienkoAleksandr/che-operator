@@ -163,7 +163,7 @@
       "mode": "auto",
       "program": "${workspaceFolder}/cmd/manager/main.go",
       "env": {
-        "WATCH_NAMESPACE": "che",
+        "WATCH_NAMESPACE": "test2",
         "CHE_FLAVOR": "che",
         "CONSOLE_LINK_NAME": "che",
         "CONSOLE_LINK_DISPLAY_NAME": "Eclipse Che",

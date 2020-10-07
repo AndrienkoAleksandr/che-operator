@@ -3,7 +3,6 @@ $script config credentials --server http://0.0.0.0:8080/auth \
                                         --user $keycloakAdminUserName \
                                         --password $keycloakAdminPassword \
 && $script update realms/master -s sslRequired=none \
-&& $script config truststore --trustpass ${SSO_TRUSTSTORE_PASSWORD} ${SSO_TRUSTSTORE_DIR}/${SSO_TRUSTSTORE} \
 && $script get realms/$keycloakRealm; \
 if [ $? -eq 0 ]; then echo "Realm exists"; exit 0; fi \
 && $script create realms  -s realm='$keycloakRealm' \
@@ -12,10 +11,6 @@ if [ $? -eq 0 ]; then echo "Realm exists"; exit 0; fi \
                                         -s sslRequired=none \
                                         -s registrationAllowed=false \
                                         -s resetPasswordAllowed=true \
-                                        -s loginTheme=$keycloakTheme \
-                                        -s accountTheme=$keycloakTheme \
-                                        -s adminTheme=$keycloakTheme \
-                                        -s emailTheme=$keycloakTheme \
 && $script create clients -r '$keycloakRealm' \
                                         -s clientId=$keycloakClientId \
                                         -s id=$keycloakClientId \
@@ -26,7 +21,6 @@ if [ $? -eq 0 ]; then echo "Realm exists"; exit 0; fi \
 && $script create users   -s username=admin \
                                         -s email=\"admin@admin.com\" \
                                         -s enabled=true -r '$keycloakRealm' \
-                                        -s 'requiredActions=[$requiredActions]' \
 && $script set-password   -r '$keycloakRealm' --username admin \
                                         --new-password admin \
 && $script add-roles      -r '$keycloakRealm' \

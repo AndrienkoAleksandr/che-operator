@@ -13,7 +13,7 @@ package deploy
 
 import (
 	"context"
-	"fmt"
+	// "fmt"
 
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
@@ -69,29 +69,29 @@ func SyncDeploymentToCluster(
 	// 2-step comparation process
 	// Firstly compare fields (and update the object if necessary) specifc to deployment
 	// And only then compare common deployment fields
-	if additionalDeploymentDiffOpts != nil {
-		diff := cmp.Diff(clusterDeployment, specDeployment, additionalDeploymentDiffOpts)
-		if len(diff) > 0 {
-			logrus.Infof("Updating existing object: %s, name: %s", specDeployment.Kind, specDeployment.Name)
-			fmt.Printf("Difference:\n%s", diff)
-			clusterDeployment = additionalDeploymentMerge(specDeployment, clusterDeployment)
-			err := deployContext.ClusterAPI.Client.Update(context.TODO(), clusterDeployment)
-			return DeploymentProvisioningStatus{
-				ProvisioningStatus: ProvisioningStatus{Requeue: true, Err: err},
-			}
-		}
-	}
+	// if additionalDeploymentDiffOpts != nil {
+	// 	diff := cmp.Diff(clusterDeployment, specDeployment, additionalDeploymentDiffOpts)
+	// 	if len(diff) > 0 {
+	// 		logrus.Infof("Updating existing object: %s, name: %s", specDeployment.Kind, specDeployment.Name)
+	// 		fmt.Printf("Difference:\n%s", diff)
+	// 		clusterDeployment = additionalDeploymentMerge(specDeployment, clusterDeployment)
+	// 		err := deployContext.ClusterAPI.Client.Update(context.TODO(), clusterDeployment)
+	// 		return DeploymentProvisioningStatus{
+	// 			ProvisioningStatus: ProvisioningStatus{Requeue: true, Err: err},
+	// 		}
+	// 	}
+	// }
 
-	diff := cmp.Diff(clusterDeployment, specDeployment, deploymentDiffOpts)
-	if len(diff) > 0 {
-		logrus.Infof("Updating existed object: %s, name: %s", specDeployment.Kind, specDeployment.Name)
-		fmt.Printf("Difference:\n%s", diff)
-		clusterDeployment.Spec = specDeployment.Spec
-		err := deployContext.ClusterAPI.Client.Update(context.TODO(), clusterDeployment)
-		return DeploymentProvisioningStatus{
-			ProvisioningStatus: ProvisioningStatus{Requeue: true, Err: err},
-		}
-	}
+	// diff := cmp.Diff(clusterDeployment, specDeployment, deploymentDiffOpts)
+	// if len(diff) > 0 {
+	// 	logrus.Infof("Updating existed object: %s, name: %s", specDeployment.Kind, specDeployment.Name)
+	// 	fmt.Printf("Difference:\n%s", diff)
+	// 	clusterDeployment.Spec = specDeployment.Spec
+	// 	err := deployContext.ClusterAPI.Client.Update(context.TODO(), clusterDeployment)
+	// 	return DeploymentProvisioningStatus{
+	// 		ProvisioningStatus: ProvisioningStatus{Requeue: true, Err: err},
+	// 	}
+	// }
 
 	if clusterDeployment.Spec.Strategy.Type == appsv1.RollingUpdateDeploymentStrategyType && clusterDeployment.Status.Replicas > 1 {
 		logrus.Infof("Deployment %s is in the rolling update state.", specDeployment.Name)

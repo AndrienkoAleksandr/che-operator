@@ -19,12 +19,6 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
     - uses: actions/checkout@v2
-      # with:
-        # path: go/src/github.com/eclipse/${{ github.repository }}
-        # fetch-depth: 0
     - name: Che operator code check.
       run: >-
-        echo "=============" &&
-        pwd &&
-        echo "=============" &&
         ${GITHUB_WORKSPACE}/.github/action_scripts/operator_code_check.sh

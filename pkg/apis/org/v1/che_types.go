@@ -229,7 +229,7 @@ type CheClusterSpecServer struct {
 	// (see the doc https://docs.openshift.com/container-platform/4.4/networking/enable-cluster-wide-proxy.html)
 	// (see also the `proxyURL` fields).
 	NonProxyHosts string `json:"nonProxyHosts,omitempty"`
-	// User name of the proxy server.
+	// User name of the proxy server...
 	// Only use when configuring a proxy is required
 	// (see also the `proxyURL`, `proxyPassword` and `proxySecret` fields).
 	// +optional

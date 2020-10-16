@@ -19,7 +19,7 @@ pip3 install yq
 export PATH=$HOME/.local/bin:$PATH
 
 
-export IMAGE_REGISTRY_USERNAME=eclipse
+export IMAGE_REGISTRY_USERNAME=aandriienko
 export IMAGE_REGISTRY=quay.io
 export ROOT_PROJECT_DIR="${GITHUB_WORKSPACE}"
 export BASE_DIR="${ROOT_PROJECT_DIR}/olm"
@@ -43,7 +43,7 @@ do
   export incrementPart=$(getNightlyVersionIncrementPart "${nightlyVersion}")
   echo "[INFO] Nightly increment version ${incrementPart}"
 
-  export CHECK_NIGHTLY_TAG=$(skopeo inspect docker://quay.io/eclipse/eclipse-che-kubernetes-opm-bundles:${nightlyVersion} 2>/dev/null | jq -r '.RepoTags[]|select(. == "${nightlyVersion}")')
+  export CHECK_NIGHTLY_TAG=$(skopeo inspect docker://${IMAGE_REGISTRY}/${IMAGE_REGISTRY_USERNAME}/eclipse-che-kubernetes-opm-bundles:${nightlyVersion} 2>/dev/null | jq -r '.RepoTags[]|select(. == "${nightlyVersion}")')
   if [ -z "$CHECK_NIGHTLY_TAG" ]
   then
     buildBundleImage "${CATALOG_BUNDLE_IMAGE_NAME_LOCAL}"

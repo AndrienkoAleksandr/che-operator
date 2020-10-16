@@ -53,5 +53,4 @@ jobs:
       run: >-
         echo "=========================${GITHUB_WORKSPACE}" &&
         export GITHUB_WORKSPACE=${GITHUB_WORKSPACE}/go/src/github.com/eclipse/${{ github.repository }} &&
-        && ls && exit 0 &&
         ${GITHUB_WORKSPACE}/.github/action_scripts/build_olm_bundle_images.sh

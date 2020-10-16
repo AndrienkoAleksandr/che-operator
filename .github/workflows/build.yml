@@ -9,15 +9,15 @@
 #  Contributors:
 #    Red Hat, Inc. - initial API and implementation
 #
-name: Che operator image build check
-on: [pull_request, push]
-jobs:
+# name: Che operator image build check
+# on: [pull_request, push]
+# jobs:
 
-  build:
-    name: Build
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v1
+#   build:
+#     name: Build
+#     runs-on: ubuntu-latest
+#     steps:
+#     - uses: actions/checkout@v1
 
-    - name: Build the Docker image
-      run: docker build .
+#     - name: Build the Docker image
+#       run: docker build .

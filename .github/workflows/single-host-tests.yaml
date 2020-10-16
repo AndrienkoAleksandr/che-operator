@@ -9,44 +9,44 @@
 #  Contributors:
 #    Red Hat, Inc. - initial API and implementation
 #
-name: Minikube
-on: pull_request
-jobs:
-  minikube-gateway:
-    name: Testing latest changes (single-host/gateway)
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v1
-    - name: Install minikube kubernetes cluster
-      run:  /bin/bash .ci/start-minikube.sh
-    - name: Install jq
-      run: sudo pip install yq
-    - name: Install chectl
-      run: bash <(curl -sL  https://www.eclipse.org/che/chectl/) --channel=next
-    - name: Run che operator single host tests
-      run: /bin/bash .github/action_scripts/nightly/minikube/single-host-gateway.sh
-    # Run this step even the previous step fail to upload artifacts to GH
-    - uses: actions/upload-artifact@v2
-      if: ${{ always() }}
-      with:
-        name: minikube-single-host-gateway
-        path: /tmp/artifacts-che
-  minikube-native:
-    name: Testing latest changes (single-host/native)
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v1
-    - name: Install minikube kubernetes cluster
-      run:  /bin/bash .ci/start-minikube.sh
-    - name: Install jq
-      run: sudo pip install yq
-    - name: Install chectl
-      run: bash <(curl -sL  https://www.eclipse.org/che/chectl/) --channel=next
-    - name: Run che operator single host tests
-      run: /bin/bash .github/action_scripts/nightly/minikube/single-host-native.sh
-    # Run this step even the previous step fail to upload artifacts to GH
-    - uses: actions/upload-artifact@v2
-      if: ${{ always() }}
-      with:
-        name: minikube-single-host-native
-        path: /tmp/artifacts-che
+# name: Minikube
+# on: pull_request
+# jobs:
+#   minikube-gateway:
+#     name: Testing latest changes (single-host/gateway)
+#     runs-on: ubuntu-latest
+#     steps:
+#     - uses: actions/checkout@v1
+#     - name: Install minikube kubernetes cluster
+#       run:  /bin/bash .ci/start-minikube.sh
+#     - name: Install jq
+#       run: sudo pip install yq
+#     - name: Install chectl
+#       run: bash <(curl -sL  https://www.eclipse.org/che/chectl/) --channel=next
+#     - name: Run che operator single host tests
+#       run: /bin/bash .github/action_scripts/nightly/minikube/single-host-gateway.sh
+#     # Run this step even the previous step fail to upload artifacts to GH
+#     - uses: actions/upload-artifact@v2
+#       if: ${{ always() }}
+#       with:
+#         name: minikube-single-host-gateway
+#         path: /tmp/artifacts-che
+#   minikube-native:
+#     name: Testing latest changes (single-host/native)
+#     runs-on: ubuntu-latest
+#     steps:
+#     - uses: actions/checkout@v1
+#     - name: Install minikube kubernetes cluster
+#       run:  /bin/bash .ci/start-minikube.sh
+#     - name: Install jq
+#       run: sudo pip install yq
+#     - name: Install chectl
+#       run: bash <(curl -sL  https://www.eclipse.org/che/chectl/) --channel=next
+#     - name: Run che operator single host tests
+#       run: /bin/bash .github/action_scripts/nightly/minikube/single-host-native.sh
+#     # Run this step even the previous step fail to upload artifacts to GH
+#     - uses: actions/upload-artifact@v2
+#       if: ${{ always() }}
+#       with:
+#         name: minikube-single-host-native
+#         path: /tmp/artifacts-che

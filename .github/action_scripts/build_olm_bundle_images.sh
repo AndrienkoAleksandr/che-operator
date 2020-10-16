@@ -43,7 +43,7 @@ do
   export incrementPart=$(getNightlyVersionIncrementPart "${nightlyVersion}")
   echo "[INFO] Nightly increment version ${incrementPart}"
 
-  export CHECK_NIGHTLY_TAG=$("skopeo inspect docker://${IMAGE_REGISTRY}/${IMAGE_REGISTRY_USERNAME}/eclipse-che-kubernetes-opm-bundles:${nightlyVersion} 2>/dev/null | jq -r '.RepoTags[]|select(. == \"${nightlyVersion}\")'")
+  export CHECK_NIGHTLY_TAG=$(skopeo inspect docker://quay.io/aandriienko/eclipse-che-kubernetes-opm-bundles:${nightlyVersion} 2>/dev/null | jq -r '.RepoTags[]|select(. == "${nightlyVersion}")')
   echo "=======================================${CHECK_NIGHTLY_TAG}=========================="
   if [ -z "$CHECK_NIGHTLY_TAG" ]
   then

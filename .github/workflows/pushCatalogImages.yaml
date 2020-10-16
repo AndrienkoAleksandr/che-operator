@@ -10,11 +10,12 @@
 #    Red Hat, Inc. - initial API and implementation
 #
 name: Push catalog and bundle images.
-on: pull_request
-  # schedule:
-  #   - cron:  '0 21 * * *'
-  #     branches:
-  #       - master
+# on: pull_request
+on:
+  schedule:
+    - cron:  '0 21 * * *'
+      branches:
+        - master
 jobs:
 
   build:

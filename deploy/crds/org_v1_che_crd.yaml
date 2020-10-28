@@ -507,6 +507,11 @@ spec:
                     TLS mode. This is enabled by default. Disabling TLS may cause
                     malfunction of some Che components.
                   type: boolean
+                useServiceHostNames:
+                  description: Use internal host names provided by cluster dns. It
+                    should be usefull to speed internal services traffic. Also it
+                    could avoid some proxy traffic issues.
+                  type: boolean
                 workspaceNamespaceDefault:
                   description: 'Defines Kubernetes default namespace in which user''s
                     workspaces are created if user does not override it. It''s possible

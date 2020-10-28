@@ -22,8 +22,6 @@ command -v operator-sdk >/dev/null 2>&1 || { echo -e $RED"operator-sdk is not in
 
 CHE_NAMESPACE=che
 
-
-
 set +e
 kubectl create namespace $CHE_NAMESPACE
 set -e
@@ -31,5 +29,8 @@ set -e
 kubectl apply -f deploy/crds/org_v1_che_crd.yaml
 kubectl apply -f $1 -n $CHE_NAMESPACE
 cp templates/keycloak_provision /tmp/keycloak_provision
+cp templates/oauth_provision /tmp/oauth_provision
+
+echo "[INFO] Make sure that your CR contains valid ingress domain!"
 
 operator-sdk up local --namespace=${CHE_NAMESPACE} --enable-delve

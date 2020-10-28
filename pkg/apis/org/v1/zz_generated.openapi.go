@@ -497,6 +497,13 @@ func schema_pkg_apis_org_v1_CheClusterSpecServer(ref common.ReferenceCallback) c
 							Format:      "",
 						},
 					},
+					"useServiceHostNames": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Use internal host names provided by cluster dns. It should be usefull to speed internal services traffic. Also it could avoid some proxy traffic issues.",
+							Type:        []string{"boolean"},
+							Format:      "",
+						},
+					},
 					"devfileRegistryUrl": {
 						SchemaProps: spec.SchemaProps{
 							Description: "Public URL of the Devfile registry, that serves sample, ready-to-use devfiles. You should set it ONLY if you use an external devfile registry (see the `externalDevfileRegistry` field). By default this will be automatically calculated by the operator.",
@@ -687,6 +694,7 @@ func schema_pkg_apis_org_v1_CheClusterSpecServer(ref common.ReferenceCallback) c
 						},
 					},
 				},
+				Required: []string{"useServiceHostNames"},
 			},
 		},
 		Dependencies: []string{},

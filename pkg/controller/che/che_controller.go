@@ -258,6 +258,7 @@ func (r *ReconcileChe) Reconcile(request reconcile.Request) (reconcile.Result, e
 	deployContext := &deploy.DeployContext{
 		ClusterAPI: clusterAPI,
 		CheCluster: instance,
+		InternalService: deploy.InternalService{},
 	}
 
 	isOpenShift, isOpenShift4, err := util.DetectOpenShift()

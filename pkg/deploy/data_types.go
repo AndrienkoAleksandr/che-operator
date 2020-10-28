@@ -28,7 +28,12 @@ type DeployContext struct {
 	CheCluster *orgv1.CheCluster
 	ClusterAPI ClusterAPI
 	Proxy *Proxy
+	InternalService InternalService
 	DefaultCheHost string
+}
+
+type InternalService struct {
+	KeycloakHost string
 }
 
 type ClusterAPI struct {

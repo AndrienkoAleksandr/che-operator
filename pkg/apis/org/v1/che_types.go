@@ -139,6 +139,12 @@ type CheClusterSpecServer struct {
 	// Disabling TLS may cause malfunction of some Che components.
 	// +optional
 	TlsSupport bool `json:"tlsSupport"`
+
+	// Use internal host names provided by cluster dns.
+	// It should be usefull to speed internal services traffic.
+	// Also it could avoid some proxy traffic issues.
+	UseServiceHostNames bool `json:"useServiceHostNames"`
+
 	// Public URL of the Devfile registry, that serves sample, ready-to-use devfiles.
 	// You should set it ONLY if you use an external devfile registry (see the `externalDevfileRegistry` field).
 	// By default this will be automatically calculated by the operator.

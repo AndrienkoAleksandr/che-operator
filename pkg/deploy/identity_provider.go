@@ -2,6 +2,7 @@ package deploy
 
 import (
 	"context"
+	"fmt"
 	"strings"
 
 	"github.com/eclipse/che-operator/pkg/util"
@@ -48,6 +49,8 @@ func SyncIdentityProviderToCluster(deployContext *DeployContext, cheHost string,
 			return false, serviceStatus.Err
 		}
 	}
+
+	deployContext.InternalService.KeycloakHost = fmt.Sprintf("%s://%s.%s.svc.cluster.local:%d", "http", "keycloak", deployContext.CheCluster.Namespace, 8080)
 
 	exposureStrategy := util.GetServerExposureStrategy(instance, DefaultServerExposureStrategy)
 	singleHostExposureType := GetSingleHostExposureType(instance)

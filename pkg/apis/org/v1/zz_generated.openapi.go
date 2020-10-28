@@ -227,10 +227,23 @@ func schema_pkg_apis_org_v1_CheClusterSpecAuth(ref common.ReferenceCallback) com
 							Format:      "",
 						},
 					},
+					"identityProviderIngress": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Ingress custom settings",
+							Ref:         ref("github.com/eclipse/che-operator/pkg/apis/org/v1.IngressCustomSettings"),
+						},
+					},
+					"identityProviderRoute": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Route custom settings",
+							Ref:         ref("github.com/eclipse/che-operator/pkg/apis/org/v1.RouteCustomSettings"),
+						},
+					},
 				},
 			},
 		},
-		Dependencies: []string{},
+		Dependencies: []string{
+			"github.com/eclipse/che-operator/pkg/apis/org/v1.IngressCustomSettings", "github.com/eclipse/che-operator/pkg/apis/org/v1.RouteCustomSettings"},
 	}
 }
 
@@ -539,6 +552,18 @@ func schema_pkg_apis_org_v1_CheClusterSpecServer(ref common.ReferenceCallback) c
 							Format:      "",
 						},
 					},
+					"devfileRegistryIngress": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Devfile registry ingress custom settings",
+							Ref:         ref("github.com/eclipse/che-operator/pkg/apis/org/v1.IngressCustomSettings"),
+						},
+					},
+					"devfileRegistryRoute": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Devfile registry route custom settings",
+							Ref:         ref("github.com/eclipse/che-operator/pkg/apis/org/v1.RouteCustomSettings"),
+						},
+					},
 					"externalDevfileRegistry": {
 						SchemaProps: spec.SchemaProps{
 							Description: "Instructs the operator on whether or not to deploy a dedicated Devfile registry server. By default a dedicated devfile registry server is started. But if `externalDevfileRegistry` is `true`, then no such dedicated server will be started by the operator and you will have to manually set the `devfileRegistryUrl` field",
@@ -555,7 +580,7 @@ func schema_pkg_apis_org_v1_CheClusterSpecServer(ref common.ReferenceCallback) c
 					},
 					"pluginRegistryImage": {
 						SchemaProps: spec.SchemaProps{
-							Description: "Overrides the container image used in the Plugin registry deployment. This includes the image tag. Omit it or leave it empty to use the defaut container image provided by the operator.",
+							Description: "Overrides the container image used in the Plugin registry deployment. This includes the image tag. Omit it or leave it empty to use the default container image provided by the operator.",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -579,6 +604,18 @@ func schema_pkg_apis_org_v1_CheClusterSpecServer(ref common.ReferenceCallback) c
 							Description: "Overrides the memory request used in the Plugin registry deployment. Defaults to 16Mi.",
 							Type:        []string{"string"},
 							Format:      "",
+						},
+					},
+					"pluginRegistryIngress": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Plugin registry ingress custom settings",
+							Ref:         ref("github.com/eclipse/che-operator/pkg/apis/org/v1.IngressCustomSettings"),
+						},
+					},
+					"pluginRegistryRoute": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Plugin registry route custom settings",
+							Ref:         ref("github.com/eclipse/che-operator/pkg/apis/org/v1.RouteCustomSettings"),
 						},
 					},
 					"externalPluginRegistry": {
@@ -618,7 +655,7 @@ func schema_pkg_apis_org_v1_CheClusterSpecServer(ref common.ReferenceCallback) c
 					},
 					"nonProxyHosts": {
 						SchemaProps: spec.SchemaProps{
-							Description: "List of hosts that should not use the configured proxy. Use `|`` as delimiter, eg `localhost|my.host.com|123.42.12.32` Only use when configuring a proxy is required. Operator respects OpenShift cluster wide proxy configuration and no additional configuration is required, but defining `nonProxyHosts` in a custom resource leads to merging non proxy hosts lists from the cluster proxy configuration and ones defined in the custom resources. (see the doc https://docs.openshift.com/container-platform/4.4/networking/enable-cluster-wide-proxy.html) (see also the `proxyURL` fields).",
+							Description: "List of hosts that should not use the configured proxy. So specify wild card domain use the following form `.<DOMAIN>` and `|` as delimiter, eg: `localhost|.my.host.com|123.42.12.32` Only use when configuring a proxy is required. Operator respects OpenShift cluster wide proxy configuration and no additional configuration is required, but defining `nonProxyHosts` in a custom resource leads to merging non proxy hosts lists from the cluster proxy configuration and ones defined in the custom resources. (see the doc https://docs.openshift.com/container-platform/4.4/networking/enable-cluster-wide-proxy.html) (see also the `proxyURL` fields).",
 							Type:        []string{"string"},
 							Format:      "",
 						},
@@ -693,11 +730,24 @@ func schema_pkg_apis_org_v1_CheClusterSpecServer(ref common.ReferenceCallback) c
 							},
 						},
 					},
+					"cheServerIngress": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Che server ingress custom settings",
+							Ref:         ref("github.com/eclipse/che-operator/pkg/apis/org/v1.IngressCustomSettings"),
+						},
+					},
+					"cheServerRoute": {
+						SchemaProps: spec.SchemaProps{
+							Description: "Che server route custom settings",
+							Ref:         ref("github.com/eclipse/che-operator/pkg/apis/org/v1.RouteCustomSettings"),
+						},
+					},
 				},
 				Required: []string{"useServiceHostNames"},
 			},
 		},
-		Dependencies: []string{},
+		Dependencies: []string{
+			"github.com/eclipse/che-operator/pkg/apis/org/v1.IngressCustomSettings", "github.com/eclipse/che-operator/pkg/apis/org/v1.RouteCustomSettings"},
 	}
 }
 

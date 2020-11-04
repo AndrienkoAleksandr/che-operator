@@ -139,11 +139,11 @@ applyCheOperatorInstallationSource() {
 buildBundleImage() {
   CATALOG_BUNDLE_IMAGE_NAME_LOCAL=${1}
   if [ -z "${CATALOG_BUNDLE_IMAGE_NAME_LOCAL}" ]; then
-    echo "Please specify second argument: opm bundle image"
+    echo "Please specify first argument: opm bundle image"
     exit 1
   fi
 
-  imageTool=${2:-docker}
+  imageTool=${2:-podman}
 
   pushd "${OPM_BUNDLE_DIR}" || exit
 
@@ -181,7 +181,7 @@ buildCatalogImage() {
     exit 1
   fi
 
-  imageTool=${3:-docker}
+  imageTool=${3:-podman}
 
   FROM_INDEX=${4}
   if [ -n "${FROM_INDEX}" ]; then
@@ -198,6 +198,7 @@ buildCatalogImage() {
        --tag "${CATALOG_IMAGENAME}" \
        --pull-tool "${imageTool}" \
        --build-tool "${imageTool}" \
+       --generate \
        --mode semver \
        "${BUILD_INDEX_IMAGE_ARG}" "${SKIP_TLS_ARG}"
 

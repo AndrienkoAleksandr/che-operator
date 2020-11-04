@@ -2,60 +2,18 @@ apiVersion: operators.coreos.com/v1alpha1
 kind: ClusterServiceVersion
 metadata:
   annotations:
-    alm-examples: |-
-      [
-        {
-          "apiVersion": "org.eclipse.che/v1",
-          "kind": "CheCluster",
-          "metadata": {
-             "name": "eclipse-che"
-          },
-          "spec": {
-             "server": {
-                "cheImageTag": "nightly",
-                "devfileRegistryImage": "quay.io/eclipse/che-devfile-registry:nightly",
-                "pluginRegistryImage": "quay.io/eclipse/che-plugin-registry:nightly",
-                "tlsSupport": true,
-                "selfSignedCert": false
-             },
-             "database": {
-                "externalDb": false,
-                "chePostgresHostName": "",
-                "chePostgresPort": "",
-                "chePostgresUser": "",
-                "chePostgresPassword": "",
-                "chePostgresDb": ""
-             },
-             "auth": {
-                "openShiftoAuth": true,
-                "identityProviderImage": "quay.io/eclipse/che-keycloak:nightly",
-                "externalIdentityProvider": false,
-                "identityProviderURL": "",
-                "identityProviderRealm": "",
-                "identityProviderClientId": ""
-             },
-             "storage": {
-                "pvcStrategy": "per-workspace",
-                "pvcClaimSize": "1Gi",
-                "preCreateSubPaths": true
-             },
-             "metrics": {
-                "enable": true
-             }
-          }
-        }
-      ]
+    alm-examples: '[{"apiVersion":"org.eclipse.che/v1","kind":"CheCluster","metadata":{"name":"eclipse-che"},"spec":{"auth":{"externalIdentityProvider":false,"identityProviderAdminUserName":"","identityProviderClientId":"","identityProviderImage":"","identityProviderPassword":"","identityProviderRealm":"","identityProviderURL":"","oAuthClientName":"","oAuthSecret":"","openShiftoAuth":true},"database":{"chePostgresDb":"","chePostgresHostName":"","chePostgresPassword":"","chePostgresPort":"","chePostgresUser":"","externalDb":false,"postgresImage":""},"k8s":{"ingressClass":"","ingressDomain":"192.168.99.101.nip.io","ingressStrategy":"","securityContextFsGroup":"","securityContextRunAsUser":"","singleHostExposureType":"","tlsSecretName":""},"metrics":{"enable":true},"server":{"allowUserDefinedWorkspaceNamespaces":false,"cheFlavor":"","cheImage":"","cheImageTag":"","cheWorkspaceClusterRole":"","devfileRegistryImage":"","gitSelfSignedCert":false,"nonProxyHosts":"","pluginRegistryImage":"","proxyPassword":"","proxyPort":"","proxyURL":"","proxyUser":"","serverExposureStrategy":"","serverMemoryLimit":"","serverMemoryRequest":"","serverTrustStoreConfigMapName":"","singleHostGatewayConfigMapLabels":{},"singleHostGatewayConfigSidecarImage":"","singleHostGatewayImage":"","tlsSupport":true,"workspaceNamespaceDefault":""},"storage":{"postgresPVCStorageClassName":"","preCreateSubPaths":true,"pvcClaimSize":"1Gi","pvcJobsImage":"","pvcStrategy":"common","workspacePVCStorageClassName":""}}}]'
     capabilities: Seamless Upgrades
     categories: Developer Tools, OpenShift Optional
     certified: "false"
     containerImage: quay.io/eclipse/che-operator:nightly
-    createdAt: "2020-10-29T14:20:39Z"
+    createdAt: "2020-11-04T18:56:18Z"
     description: A Kube-native development solution that delivers portable and collaborative
       developer workspaces in OpenShift.
     operatorframework.io/suggested-namespace: eclipse-che
     repository: https://github.com/eclipse/che-operator
     support: Eclipse Foundation
-  name: eclipse-che-preview-openshift.v7.21.0-18.nightly
+  name: eclipse-che-preview-openshift.v7.22.1604516179-18.nightly
   namespace: placeholder
 spec:
   apiservicedefinitions: {}
@@ -287,7 +245,7 @@ spec:
                       - name: RELATED_IMAGE_devfile_registry
                         value: quay.io/eclipse/che-devfile-registry:nightly
                       - name: RELATED_IMAGE_pvc_jobs
-                        value: registry.access.redhat.com/ubi8-minimal:8.2-349
+                        value: registry.access.redhat.com/ubi8-minimal:8.3-201
                       - name: RELATED_IMAGE_postgres
                         value: centos/postgresql-96-centos7:9.6
                       - name: RELATED_IMAGE_keycloak
@@ -435,4 +393,4 @@ spec:
   maturity: stable
   provider:
     name: Eclipse Foundation
-  version: 7.21.0-18.nightly
+  version: 7.22.1604516179-18.nightly

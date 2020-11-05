@@ -38,7 +38,9 @@ incrementNightlyVersion() {
 
   parseStableVersion
   STABLE_MINOR_VERSION=$((STABLE_MINOR_VERSION+1))
-  newVersion="${STABLE_MAJOR_VERSION}.${STABLE_MINOR_VERSION}.0-$((incrementPart+1)).nightly"
+
+  date="$(date +%s)"
+  newVersion="${STABLE_MAJOR_VERSION}.${STABLE_MINOR_VERSION}.${date}"
 
   echo "[INFO] Set up nightly ${platform} version: ${newVersion}"
   yq -rY "(.spec.version) = \"${newVersion}\" | (.metadata.name) = \"eclipse-che-preview-${platform}.v${newVersion}\"" "${CSV}" > "${CSV}.old"
@@ -52,9 +54,9 @@ getNightlyVersionIncrementPart() {
 
   version="${versionWithoutNightly%-*}"
 
-  incrementPart="${versionWithoutNightly#*-}"
+  # incrementPart="${versionWithoutNightly#*-}"
 
-  echo "${incrementPart}"
+  # echo "${incrementPart}"
 }
 
 parseStableVersion() {

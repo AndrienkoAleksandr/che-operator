@@ -79,7 +79,7 @@ sed -i 's|registry.access.redhat.com/ubi8-minimal:.*|'${UBI8_MINIMAL_IMAGE}'|g' 
 
 source "${BASE_DIR}/incrementNightlyBundles.sh"
 
-for platform in 'kubernetes' 'openshift'
+for platform in 'openshift'
 do
   echo "[INFO] Updating OperatorHub bundle for platform '${platform}' for platform '${platform}'"
 
@@ -94,21 +94,22 @@ do
   newNightlyBundleVersion=$(yq -r ".spec.version" "${NEW_CSV}")
   echo "[INFO] Will create new nightly bundle version: ${newNightlyBundleVersion}"
 
-  "${bundleFolder}"/build-roles.sh
+  # "${bundleFolder}"/build-roles.sh
 
   packageManifestFolderPath=${ROOT_PROJECT_DIR}/deploy/olm-catalog/che-operator/${newNightlyBundleVersion}
   packageManifestCSVPath=${packageManifestFolderPath}/che-operator.v${newNightlyBundleVersion}.clusterserviceversion.yaml
 
   mkdir -p "${packageManifestFolderPath}"
   cp -rf "${NEW_CSV}" "${packageManifestCSVPath}"
-  cp -rf "${bundleFolder}/csv-config.yaml" "${olmCatalog}"
+  # cp -rf "${bundleFolder}/csv-config.yaml" "${olmCatalog}"
 
   echo "[INFO] Updating new package version..."
   "${OPERATOR_SDK_BINARY}" olm-catalog gen-csv --csv-version "${newNightlyBundleVersion}" 2>&1 | sed -e 's/^/      /'
 
   cp -rf "${packageManifestCSVPath}" "${NEW_CSV}"
 
-  rm -rf "${operatorFolder}" "${olmCatalog}/csv-config.yaml"
+  rm -rf "${operatorFolder}"
+  # "${olmCatalog}/csv-config.yaml"
 
   containerImage=$(sed -n 's|^ *image: *\([^ ]*/che-operator:[^ ]*\) *|\1|p' ${NEW_CSV})
   echo "[INFO] Updating new package version fields:"

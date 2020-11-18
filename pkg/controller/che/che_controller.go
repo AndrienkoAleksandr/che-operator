@@ -52,6 +52,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/predicate"
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 	"sigs.k8s.io/controller-runtime/pkg/source"
+	operatorv1 "github.com/openshift/api/operator/v1"
 )
 
 var log = logf.Log.WithName("controller_che")
@@ -116,6 +117,9 @@ func add(mgr manager.Manager, r reconcile.Reconciler) error {
 		}
 		if err := userv1.AddToScheme(mgr.GetScheme()); err != nil {
 			logrus.Errorf("Failed to add OpenShift User to scheme: %s", err)
+		}
+		if err := operatorv1.AddToScheme(mgr.GetScheme()); err != nil {
+			logrus.Errorf("Failed to add Operator v1 to scheme: %s", err)
 		}
 		if err := oauthv1.AddToScheme(mgr.GetScheme()); err != nil {
 			logrus.Errorf("Failed to add OpenShift OAuth to scheme: %s", err)
@@ -315,8 +319,8 @@ func (r *ReconcileChe) Reconcile(request reconcile.Request) (reconcile.Result, e
 		return reconcile.Result{}, nil
 	}
 
-	if instance.Spec.Server.ServiceHostnameSuffix == "" {
-		instance.Spec.Server.ServiceHostnameSuffix = getClusterDomain()
+	if instance.Spec.Server.ServiceHostnameSuffix == "" { //
+		instance.Spec.Server.ServiceHostnameSuffix = r.getClusterDomain()
 		fmt.Println("========= Default service hostname is", instance.Spec.Server.ServiceHostnameSuffix)
 		if err := r.UpdateCheCRSpec(instance, "DefaultServiceHostnameSuffix", instance.Spec.Server.ServiceHostnameSuffix); err != nil {
 			return reconcile.Result{Requeue: true, RequeueAfter: time.Second * 1}, err
@@ -1065,8 +1069,18 @@ func isTrustedBundleConfigMap(mgr manager.Manager, obj handler.MapObject) (bool,
 	}
 }
 
-func getClusterDomain() string {
-    apiSvc := "kubernetes.default.svc"
+
+func (r *ReconcileChe) getClusterDomain() string {
+	apiSvc := "kubernetes.default.svc"
+
+	if util.IsOpenShift4 {
+		openshiftDNS := &operatorv1.DNS{}
+		err := r.nonCachedClient.Get(context.TODO(), types.NamespacedName{Name: "default"}, openshiftDNS)
+		if err != nil {
+			fmt.Errorf("$$$$ Error %v ", err)
+		}
+		fmt.Printf("========== Openshift trick: %v. \n", openshiftDNS.Status.ClusterDomain)
+	}
 
     canonicalName, err := net.LookupCNAME(apiSvc)
     if err != nil {

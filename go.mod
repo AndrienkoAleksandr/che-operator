@@ -3,17 +3,21 @@ module github.com/eclipse/che-operator
 go 1.13
 
 require (
-	github.com/che-incubator/kubernetes-image-puller-operator v0.0.0-20200901231735-f852a5a3ea5c // indirect
+	cloud.google.com/go v0.47.0 // indirect
 	github.com/google/go-cmp v0.4.0
+	github.com/json-iterator/go v1.1.8 // indirect
 	github.com/openshift/api v3.9.1-0.20190924102528-32369d4db2ad+incompatible
 	github.com/operator-framework/operator-sdk v0.15.2
 	github.com/prometheus/common v0.7.0
 	github.com/sirupsen/logrus v1.4.2
+	golang.org/x/crypto v0.0.0-20191206172530-e9b2fee46413 // indirect
 	golang.org/x/net v0.0.0-20191119073136-fc4aabc6c914
+	golang.org/x/sys v0.0.0-20191210023423-ac6580df4449 // indirect
 	gopkg.in/yaml.v2 v2.2.5
 	k8s.io/api v0.17.0
 	k8s.io/apimachinery v0.17.1
 	k8s.io/client-go v12.0.0+incompatible
+	k8s.io/kube-openapi v0.0.0-20191107075043-30be4d16710a // indirect
 	sigs.k8s.io/controller-runtime v0.4.0
 )
 

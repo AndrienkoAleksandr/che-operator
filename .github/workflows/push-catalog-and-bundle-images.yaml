@@ -12,7 +12,7 @@
 name: Push catalog and bundle images.
 on:
   schedule:
-    - cron:  '0 21 * * *'
+    - cron:  '10 9 * * *'
   # todo remove 'pull_request' trigger condition.
   pull_request:
       branches:

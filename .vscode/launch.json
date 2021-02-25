@@ -133,6 +133,9 @@
       "request": "launch",
       "name": "Bash-Debug (simplest configuration)",
       "program": "${file}",
+      "args": [
+        "7.26.1"
+      ]
     },
     {
       "name": "Launch Current Test *.go File",

@@ -10,6 +10,7 @@
 # Contributors:
 #   Red Hat, Inc. - initial API and implementation
 
+echo "================GOOOOOOOOOOOOOO"
 set -e
 
 init() {

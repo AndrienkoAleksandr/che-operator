@@ -12,7 +12,7 @@
 
 echo "================GOOOOOOOOOOOOOO"
 set -e
-
+echo "A"
 init() {
   RELEASE="$1"
   BRANCH=$(echo $RELEASE | sed 's/.$/x/')
@@ -55,7 +55,7 @@ init() {
   command -v pysemver >/dev/null 2>&1 || { echo "[ERROR] pysemver is not installed. Abort."; exit 1; }
   REQUIRED_OPERATOR_SDK=$(yq -r ".\"operator-sdk\"" "${RELEASE_DIR}/REQUIREMENTS")
   [[ $(operator-sdk version) =~ .*${REQUIRED_OPERATOR_SDK}.* ]] || { echo "[ERROR] operator-sdk ${REQUIRED_OPERATOR_SDK} is required. Abort."; exit 1; }}
-
+echo "B"
 usage () {
 	echo "Usage:   $0 [RELEASE_VERSION] --push-olm-files --push-git-changes"
   echo -e "\t--push-olm-bundles: to push OLM bundle images to quay.io and update catalog image. This flag should be omitted "
@@ -63,7 +63,7 @@ usage () {
   echo -e "\t\t7.10.0 already exists. Otherwise it breaks the linear update path of the stable channel."
   echo -e "\t--push-git-changes: to create release branch and push changes into."
 }
-echo "AB"
+echo "C"
 resetChanges() {
   echo "[INFO] Reset changes in $1 branch"
   git reset --hard
@@ -71,7 +71,7 @@ resetChanges() {
   git fetch ${GIT_REMOTE_UPSTREAM} --prune
   git pull ${GIT_REMOTE_UPSTREAM} $1
 }
-
+echo "D"
 checkoutToReleaseBranch() {
   echo "[INFO] Check out to $BRANCH branch."
   local branchExist=$(git ls-remote -q --heads | grep $BRANCH | wc -l)
@@ -85,13 +85,13 @@ checkoutToReleaseBranch() {
   fi
   git checkout -B $RELEASE_BRANCH
 }
-
+echo "E"
 getPropertyValue() {
   local file=$1
   local key=$2
   echo $(cat $file | grep -m1 "$key" | tr -d ' ' | tr -d '\t' | cut -d = -f2)
 }
-
+echo "F"
 checkImageReferences() {
   local filename=$1
 

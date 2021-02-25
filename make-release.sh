@@ -264,7 +264,7 @@ run() {
   fi
 }
 echo "O"
-exit 0
+
 init "$@"
 echo "[INFO] Release '$RELEASE' from branch '$BRANCH'"
 

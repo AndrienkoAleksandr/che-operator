@@ -13,49 +13,49 @@
 echo "================GOOOOOOOOOOOOOO"
 set -e
 echo "A"
-# init() {
-#   echo "init"
-#   RELEASE="$1"
-#   BRANCH=$(echo $RELEASE | sed 's/.$/x/')
-#   RELEASE_BRANCH="${RELEASE}-release"
-#   # todo use 'eclipse' here
-#   GIT_REMOTE_UPSTREAM="https://github.com/AndrienkoAleksandr/che-operator.git"
-#   RUN_RELEASE=false
-#   PUSH_OLM_BUNDLES=false
-#   PUSH_GIT_CHANGES=false
-#   CREATE_PULL_REQUESTS=false
-#   RELEASE_OLM_FILES=false
-#   UPDATE_NIGHTLY_OLM_FILES=false
-#   PREPARE_COMMUNITY_OPERATORS_UPDATE=false
-#   RELEASE_DIR=$(cd "$(dirname "$0")"; pwd)
-#   FORCE_UPDATE=""
-#   BUILDX_PLATFORMS="linux/amd64,linux/ppc64le"
+init() {
+  RELEASE="$1"
+  BRANCH=$(echo $RELEASE | sed 's/.$/x/')
+  RELEASE_BRANCH="${RELEASE}-release"
+  # todo use 'eclipse' here
+  GIT_REMOTE_UPSTREAM="https://github.com/AndrienkoAleksandr/che-operator.git"
+  RUN_RELEASE=false
+  PUSH_OLM_BUNDLES=false
+  PUSH_GIT_CHANGES=false
+  CREATE_PULL_REQUESTS=false
+  RELEASE_OLM_FILES=false
+  UPDATE_NIGHTLY_OLM_FILES=false
+  PREPARE_COMMUNITY_OPERATORS_UPDATE=false
+  RELEASE_DIR=$(cd "$(dirname "$0")"; pwd)
+  FORCE_UPDATE=""
+  BUILDX_PLATFORMS="linux/amd64,linux/ppc64le"
 
-#   if [[ $# -lt 1 ]]; then usage; exit; fi
+  if [[ $# -lt 1 ]]; then usage; exit; fi
 
-#   while [[ "$#" -gt 0 ]]; do
-#     case $1 in
-#       '--release') RUN_RELEASE=true; shift 0;;
-#       '--push-olm-bundles') PUSH_OLM_BUNDLES=true; shift 0;;
-#       '--push-git-changes') PUSH_GIT_CHANGES=true; shift 0;;
-#       '--pull-requests') CREATE_PULL_REQUESTS=true; shift 0;;
-#       '--release-olm-files') RELEASE_OLM_FILES=true; shift 0;;
-#       '--update-nightly-olm-files') UPDATE_NIGHTLY_OLM_FILES=true; shift 0;;
-#       '--prepare-community-operators-update') PREPARE_COMMUNITY_OPERATORS_UPDATE=true; shift 0;;
-#       '--force') FORCE_UPDATE="--force"; shift 0;;
-#     '--help'|'-h') usage; exit;;
-#     esac
-#     shift 1
-#   done
+  while [[ "$#" -gt 0 ]]; do
+    case $1 in
+      '--release') RUN_RELEASE=true; shift 0;;
+      '--push-olm-bundles') PUSH_OLM_BUNDLES=true; shift 0;;
+      '--push-git-changes') PUSH_GIT_CHANGES=true; shift 0;;
+      '--pull-requests') CREATE_PULL_REQUESTS=true; shift 0;;
+      '--release-olm-files') RELEASE_OLM_FILES=true; shift 0;;
+      '--update-nightly-olm-files') UPDATE_NIGHTLY_OLM_FILES=true; shift 0;;
+      '--prepare-community-operators-update') PREPARE_COMMUNITY_OPERATORS_UPDATE=true; shift 0;;
+      '--force') FORCE_UPDATE="--force"; shift 0;;
+    '--help'|'-h') usage; exit;;
+    esac
+    shift 1
+  done
 
-#   [ -z "$QUAY_ECLIPSE_CHE_USERNAME" ] && echo "[ERROR] QUAY_ECLIPSE_CHE_USERNAME is not set" && exit 1
-#   [ -z "$QUAY_ECLIPSE_CHE_PASSWORD" ] && echo "[ERROR] QUAY_ECLIPSE_CHE_PASSWORD is not set" && exit 1
-#   command -v operator-courier >/dev/null 2>&1 || { echo "[ERROR] operator-courier is not installed. Abort."; exit 1; }
-#   command -v operator-sdk >/dev/null 2>&1 || { echo "[ERROR] operator-sdk is not installed. Abort."; exit 1; }
-#   command -v skopeo >/dev/null 2>&1 || { echo "[ERROR] skopeo is not installed. Abort."; exit 1; }
-#   command -v pysemver >/dev/null 2>&1 || { echo "[ERROR] pysemver is not installed. Abort."; exit 1; }
-#   REQUIRED_OPERATOR_SDK=$(yq -r ".\"operator-sdk\"" "${RELEASE_DIR}/REQUIREMENTS")
-#   [[ $(operator-sdk version) =~ .*${REQUIRED_OPERATOR_SDK}.* ]] || { echo "[ERROR] operator-sdk ${REQUIRED_OPERATOR_SDK} is required. Abort."; exit 1; }}
+  [ -z "$QUAY_ECLIPSE_CHE_USERNAME" ] && echo "[ERROR] QUAY_ECLIPSE_CHE_USERNAME is not set" && exit 1
+  [ -z "$QUAY_ECLIPSE_CHE_PASSWORD" ] && echo "[ERROR] QUAY_ECLIPSE_CHE_PASSWORD is not set" && exit 1
+  command -v operator-courier >/dev/null 2>&1 || { echo "[ERROR] operator-courier is not installed. Abort."; exit 1; }
+  command -v operator-sdk >/dev/null 2>&1 || { echo "[ERROR] operator-sdk is not installed. Abort."; exit 1; }
+  command -v skopeo >/dev/null 2>&1 || { echo "[ERROR] skopeo is not installed. Abort."; exit 1; }
+  command -v pysemver >/dev/null 2>&1 || { echo "[ERROR] pysemver is not installed. Abort."; exit 1; }
+  REQUIRED_OPERATOR_SDK=$(yq -r ".\"operator-sdk\"" "${RELEASE_DIR}/REQUIREMENTS")
+  [[ $(operator-sdk version) =~ .*${REQUIRED_OPERATOR_SDK}.* ]] || { echo "[ERROR] operator-sdk ${REQUIRED_OPERATOR_SDK} is required. Abort."; exit 1; }
+}
 echo "B"
 usage () {
 	echo "Usage:   $0 [RELEASE_VERSION] --push-olm-files --push-git-changes"

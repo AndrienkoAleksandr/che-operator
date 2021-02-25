@@ -51,6 +51,7 @@ init() {
   command -v operator-courier >/dev/null 2>&1 || { echo "[ERROR] operator-courier is not installed. Abort."; exit 1; }
   command -v operator-sdk >/dev/null 2>&1 || { echo "[ERROR] operator-sdk is not installed. Abort."; exit 1; }
   command -v skopeo >/dev/null 2>&1 || { echo "[ERROR] skopeo is not installed. Abort."; exit 1; }
+  command -v pysemver >/dev/null 2>&1 || { echo "[ERROR] pysemver is not installed. Abort."; exit 1; }
   REQUIRED_OPERATOR_SDK=$(yq -r ".\"operator-sdk\"" "${RELEASE_DIR}/REQUIREMENTS")
   [[ $(operator-sdk version) =~ .*${REQUIRED_OPERATOR_SDK}.* ]] || { echo "[ERROR] operator-sdk ${REQUIRED_OPERATOR_SDK} is required. Abort."; exit 1; }}
 
@@ -201,6 +202,8 @@ releaseOlmFiles() {
 }
 
 pushOlmBundlesToQuayIo() {
+  echo "[INFO] releaseOperatorCode :: Login to quay.io..."
+  docker login quay.io -u "${QUAY_ECLIPSE_CHE_USERNAME}" -p "${QUAY_ECLIPSE_CHE_PASSWORD}"
   echo "[INFO] Push OLM bundles to quay.io"
   . ${RELEASE_DIR}/olm/buildAndPushBundleFormatImages.sh -c "stable" -p "kubernetes" -p "openshift"
 }

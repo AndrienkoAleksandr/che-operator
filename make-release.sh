@@ -12,7 +12,7 @@
 
 echo "================GOOOOOOOOOOOOOO"
 set -e
-
+echo "A"
 init() {
   RELEASE="$1"
   BRANCH=$(echo $RELEASE | sed 's/.$/x/')

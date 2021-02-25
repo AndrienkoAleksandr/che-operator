@@ -12,7 +12,7 @@
 
 echo "================GOOOOOOOOOOOOOO"
 set -e
-echo "ABC"
+
 init() {
   RELEASE="$1"
   BRANCH=$(echo $RELEASE | sed 's/.$/x/')
@@ -63,7 +63,7 @@ usage () {
   echo -e "\t\t7.10.0 already exists. Otherwise it breaks the linear update path of the stable channel."
   echo -e "\t--push-git-changes: to create release branch and push changes into."
 }
-
+echo "ABC"
 resetChanges() {
   echo "[INFO] Reset changes in $1 branch"
   git reset --hard

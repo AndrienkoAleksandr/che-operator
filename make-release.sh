@@ -144,7 +144,6 @@ checkImageReferences() {
   fi
 }
 echo "G"
-exit 0
 releaseOperatorCode() {
   echo "[INFO] releaseOperatorCode :: Release operator code"
   echo "[INFO] releaseOperatorCode :: Launch 'replace-images-tags.sh' script"
@@ -165,7 +164,7 @@ releaseOperatorCode() {
   echo "[INFO] releaseOperatorCode :: Build operator image in platforms: $BUILDX_PLATFORMS"
   docker buildx build --platform "$BUILDX_PLATFORMS" --push -t "quay.io/aandriienko/che-operator:${RELEASE}" .
 }
-
+echo "H"
 updateNightlyOlmFiles() {
   echo "[INFO] updateNightlyOlmFiles :: Update nighlty OLM files"
   echo "[INFO] updateNightlyOlmFiles :: Launch 'olm/update-nightly-bundle.sh' script"
@@ -180,7 +179,7 @@ updateNightlyOlmFiles() {
     git commit -am "Update nightly olm files" --signoff
   fi
 }
-
+echo "I"
 releaseOlmFiles() {
   echo "[INFO] releaseOlmFiles :: Release OLM files"
   echo "[INFO] releaseOlmFiles :: Launch 'olm/release-olm-files.sh' script"
@@ -204,14 +203,14 @@ releaseOlmFiles() {
     git commit -am "Release OLM files to "$RELEASE --signoff
   fi
 }
-
+echo "J"
 pushOlmBundlesToQuayIo() {
   echo "[INFO] releaseOperatorCode :: Login to quay.io..."
   docker login quay.io -u "${QUAY_ECLIPSE_CHE_USERNAME}" -p "${QUAY_ECLIPSE_CHE_PASSWORD}"
   echo "[INFO] Push OLM bundles to quay.io"
   . ${RELEASE_DIR}/olm/buildAndPushBundleFormatImages.sh -c "stable" -p "kubernetes" -p "openshift"
 }
-
+echo "K"
 pushGitChanges() {
   echo "[INFO] Push git changes into $RELEASE_BRANCH branch"
   git push origin $RELEASE_BRANCH ${FORCE_UPDATE}
@@ -224,14 +223,14 @@ pushGitChanges() {
   git tag -a $RELEASE -m $RELEASE
   git push --tags origin
 }
-
+echo "L"
 createPRToXBranch() {
   echo "[INFO] createPRToXBranch :: Create pull request into ${BRANCH} branch"
   if [[ $FORCE_UPDATE == "--force" ]]; then set +e; fi  # don't fail if PR already exists (just force push commits into it)
   hub pull-request $FORCE_UPDATE --base ${BRANCH} --head ${RELEASE_BRANCH} -m "Release version ${RELEASE}"
   set -e
 }
-
+echo "M"
 createPRToMasterBranch() {
   echo "[INFO] createPRToMasterBranch :: Create pull request into master branch to copy csv"
   resetChanges master
@@ -248,7 +247,7 @@ createPRToMasterBranch() {
   hub pull-request $FORCE_UPDATE --base master --head ${tmpBranch} -m "Copy "$RELEASE" csv to master"
   set -e
 }
-
+echo "N"
 prepareCommunityOperatorsUpdate() {
   export BASE_DIR=${RELEASE_DIR}/olm
   . "${BASE_DIR}/prepare-community-operators-update.sh" $FORCE_UPDATE
@@ -264,7 +263,8 @@ run() {
     releaseOlmFiles
   fi
 }
-
+echo "O"
+exit 0
 init "$@"
 echo "[INFO] Release '$RELEASE' from branch '$BRANCH'"
 

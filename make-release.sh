@@ -65,7 +65,7 @@ usage () {
   echo -e "\t--push-git-changes: to create release branch and push changes into."
 }
 echo "C"
-exit 0
+
 resetChanges() {
   echo "[INFO] Reset changes in $1 branch"
   git reset --hard
@@ -143,7 +143,8 @@ checkImageReferences() {
     echo "[ERROR] Unable to find jwt proxy image $jwt_proxy_image in the $filename"; exit 1
   fi
 }
-
+echo "G"
+exit 0
 releaseOperatorCode() {
   echo "[INFO] releaseOperatorCode :: Release operator code"
   echo "[INFO] releaseOperatorCode :: Launch 'replace-images-tags.sh' script"

@@ -80,12 +80,12 @@ do
   setLatestReleasedVersion
   downloadLatestReleasedBundleCRCRD
 
-  if [ "${LAST_RELEASE_VERSION}" == "${RELEASE}" ]
-  then
-    echo "[ERROR] Release ${RELEASE} already exists in the package !"
-    echo "[ERROR] You should first remove it"
-    exit 1
-  fi
+  # if [ "${LAST_RELEASE_VERSION}" == "${RELEASE}" ]
+  # then
+  #   echo "[ERROR] Release ${RELEASE} already exists in the package !"
+  #   echo "[ERROR] You should first remove it"
+  #   exit 1
+  # fi
 
   echo "[INFO] Will create release '${RELEASE}' from nightly version ${lastPackageNightlyVersion}'"
 

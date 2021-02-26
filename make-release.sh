@@ -10,9 +10,8 @@
 # Contributors:
 #   Red Hat, Inc. - initial API and implementation
 
-echo "================GOOOOOOOOOOOOOO"
 set -e
-echo "A"
+
 init() {
   RELEASE="$1"
   BRANCH=$(echo $RELEASE | sed 's/.$/x/')
@@ -56,7 +55,7 @@ init() {
   REQUIRED_OPERATOR_SDK=$(yq -r ".\"operator-sdk\"" "${RELEASE_DIR}/REQUIREMENTS")
   [[ $(operator-sdk version) =~ .*${REQUIRED_OPERATOR_SDK}.* ]] || { echo "[ERROR] operator-sdk ${REQUIRED_OPERATOR_SDK} is required. Abort."; exit 1; }
 }
-echo "B"
+
 usage () {
 	echo "Usage:   $0 [RELEASE_VERSION] --push-olm-files --push-git-changes"
   echo -e "\t--push-olm-bundles: to push OLM bundle images to quay.io and update catalog image. This flag should be omitted "
@@ -64,7 +63,6 @@ usage () {
   echo -e "\t\t7.10.0 already exists. Otherwise it breaks the linear update path of the stable channel."
   echo -e "\t--push-git-changes: to create release branch and push changes into."
 }
-echo "C"
 
 resetChanges() {
   echo "[INFO] Reset changes in $1 branch"
@@ -73,7 +71,7 @@ resetChanges() {
   git fetch ${GIT_REMOTE_UPSTREAM} --prune
   git pull ${GIT_REMOTE_UPSTREAM} $1
 }
-echo "D"
+
 checkoutToReleaseBranch() {
   echo "[INFO] Check out to $BRANCH branch."
   local branchExist=$(git ls-remote -q --heads | grep $BRANCH | wc -l)
@@ -87,13 +85,13 @@ checkoutToReleaseBranch() {
   fi
   git checkout -B $RELEASE_BRANCH
 }
-echo "E"
+
 getPropertyValue() {
   local file=$1
   local key=$2
   echo $(cat $file | grep -m1 "$key" | tr -d ' ' | tr -d '\t' | cut -d = -f2)
 }
-echo "F"
+
 checkImageReferences() {
   local filename=$1
 
@@ -143,7 +141,7 @@ checkImageReferences() {
     echo "[ERROR] Unable to find jwt proxy image $jwt_proxy_image in the $filename"; exit 1
   fi
 }
-echo "G"
+
 releaseOperatorCode() {
   echo "[INFO] releaseOperatorCode :: Release operator code"
   echo "[INFO] releaseOperatorCode :: Launch 'replace-images-tags.sh' script"
@@ -162,9 +160,9 @@ releaseOperatorCode() {
   docker login quay.io -u "${QUAY_ECLIPSE_CHE_USERNAME}" -p "${QUAY_ECLIPSE_CHE_PASSWORD}"
 
   echo "[INFO] releaseOperatorCode :: Build operator image in platforms: $BUILDX_PLATFORMS"
-  docker buildx build --platform "$BUILDX_PLATFORMS" --push -t "quay.io/aandriienko/che-operator:${RELEASE}" .
+  docker buildx build --platform "$BUILDX_PLATFORMS" -t "quay.io/aandriienko/che-operator:${RELEASE}" .
 }
-echo "H"
+
 updateNightlyOlmFiles() {
   echo "[INFO] updateNightlyOlmFiles :: Update nighlty OLM files"
   echo "[INFO] updateNightlyOlmFiles :: Launch 'olm/update-nightly-bundle.sh' script"
@@ -179,7 +177,7 @@ updateNightlyOlmFiles() {
     git commit -am "Update nightly olm files" --signoff
   fi
 }
-echo "I"
+
 releaseOlmFiles() {
   echo "[INFO] releaseOlmFiles :: Release OLM files"
   echo "[INFO] releaseOlmFiles :: Launch 'olm/release-olm-files.sh' script"
@@ -203,14 +201,14 @@ releaseOlmFiles() {
     git commit -am "Release OLM files to "$RELEASE --signoff
   fi
 }
-echo "J"
+
 pushOlmBundlesToQuayIo() {
   echo "[INFO] releaseOperatorCode :: Login to quay.io..."
   docker login quay.io -u "${QUAY_ECLIPSE_CHE_USERNAME}" -p "${QUAY_ECLIPSE_CHE_PASSWORD}"
   echo "[INFO] Push OLM bundles to quay.io"
   . ${RELEASE_DIR}/olm/buildAndPushBundleFormatImages.sh -c "stable" -p "kubernetes" -p "openshift"
 }
-echo "K"
+
 pushGitChanges() {
   echo "[INFO] Push git changes into $RELEASE_BRANCH branch"
   git push origin $RELEASE_BRANCH ${FORCE_UPDATE}
@@ -223,14 +221,14 @@ pushGitChanges() {
   git tag -a $RELEASE -m $RELEASE
   git push --tags origin
 }
-echo "L"
+
 createPRToXBranch() {
   echo "[INFO] createPRToXBranch :: Create pull request into ${BRANCH} branch"
   if [[ $FORCE_UPDATE == "--force" ]]; then set +e; fi  # don't fail if PR already exists (just force push commits into it)
   hub pull-request $FORCE_UPDATE --base ${BRANCH} --head ${RELEASE_BRANCH} -m "Release version ${RELEASE}"
   set -e
 }
-echo "M"
+
 createPRToMasterBranch() {
   echo "[INFO] createPRToMasterBranch :: Create pull request into master branch to copy csv"
   resetChanges master
@@ -247,7 +245,7 @@ createPRToMasterBranch() {
   hub pull-request $FORCE_UPDATE --base master --head ${tmpBranch} -m "Copy "$RELEASE" csv to master"
   set -e
 }
-echo "N"
+
 prepareCommunityOperatorsUpdate() {
   export BASE_DIR=${RELEASE_DIR}/olm
   . "${BASE_DIR}/prepare-community-operators-update.sh" $FORCE_UPDATE
@@ -263,7 +261,6 @@ run() {
     releaseOlmFiles
   fi
 }
-echo "O"
 
 init "$@"
 echo "[INFO] Release '$RELEASE' from branch '$BRANCH'"

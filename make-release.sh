@@ -10,6 +10,7 @@
 # Contributors:
 #   Red Hat, Inc. - initial API and implementation
 
+echo "TEst"
 set -e
 
 init() {

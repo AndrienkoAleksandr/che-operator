@@ -72,4 +72,4 @@ jobs:
           # perform extra checkouts to ensure branches exist locally
           git checkout ${BRANCH}
           git checkout ${CHE_VERSION}-release
-          #./make-release.sh ${CHE_VERSION} --push-git-changes --pull-requests ${{ github.event.inputs.force_update }}
+          ./make-release.sh ${CHE_VERSION} --push-git-changes --pull-requests ${{ github.event.inputs.force_update }}

@@ -87,9 +87,10 @@ checkNightlyOlmBundle() {
 
 installOperatorSDK
 echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
-echo ">>>>>>>> ${GO111MODULE}" &&
-echo ">>>>>>>> ${GOPATH}" &&
-echo "GO Root: ${GOROOT}" &&
+echo ">>>>>>>> ${GO111MODULE}"
+echo ">>>>>>>> ${GOPATH}"
+echo "GO Root: ===${GOROOT}==="
+which go
 echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
 # check_che_crds
 pwd

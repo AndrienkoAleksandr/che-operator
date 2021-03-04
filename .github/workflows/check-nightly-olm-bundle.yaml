@@ -29,7 +29,8 @@ jobs:
       run: >-
         echo ">>>>>>>> ${GO111MODULE}" &&
         echo ">>>>>>>> ${GOPATH}" &&
-        echo "GO Root: ${GOROOT}"
+        echo "GO Root: ${GOROOT}" &&
+        which go &&
         echo ${GITHUB_WORKSPACE} &&
         ls ${GITHUB_WORKSPACE} &&
         ${GITHUB_WORKSPACE}/.github/bin/check-nightly-olm-bundle.sh

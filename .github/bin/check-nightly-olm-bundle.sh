@@ -86,11 +86,12 @@ checkNightlyOlmBundle() {
 }
 
 installOperatorSDK
+echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
 check_che_crds
 pwd
-echo "====="
+echo "============"
 git status
-echo "====="
+echo "============"
 checkNightlyOlmBundle
 
 echo "[INFO] Done."

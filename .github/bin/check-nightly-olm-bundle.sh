@@ -103,6 +103,6 @@ pwd
 echo "============"
 git status
 echo "============"
-# checkNightlyOlmBundle
+checkNightlyOlmBundle
 
 echo "[INFO] Done."

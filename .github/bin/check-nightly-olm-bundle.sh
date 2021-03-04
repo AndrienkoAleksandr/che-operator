@@ -84,11 +84,12 @@ checkNightlyOlmBundle() {
   done
   echo "[INFO] Nightly Olm bundle is in actual state."
 }
-export GOROOT=/usr/bin/go
+# export GOROOT=/usr/bin/go
 echo "---------------"
 readlink -f /usr/bin/go
-go version
+# go version
 #  /opt/hostedtoolcache/go/1.15.8/x64/bin/go
+export GOROOT=/opt/hostedtoolcache/go/1.15.8/x64/
 installOperatorSDK
 echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
 echo ">>>>>>>> ${GO111MODULE}"

@@ -87,6 +87,8 @@ checkNightlyOlmBundle() {
 export GOROOT=/usr/bin/go
 echo "---------------"
 readlink -f /usr/bin/go
+go version
+#  /opt/hostedtoolcache/go/1.15.8/x64/bin/go
 installOperatorSDK
 echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
 echo ">>>>>>>> ${GO111MODULE}"

@@ -23,7 +23,7 @@ jobs:
     - uses: actions/checkout@v2
     - name: Che operator code check.
       env:
-        GO111MODULES: on
+        GO111MODULE: on
       run: >-
         echo ">>>>>>>> ${GO111MODULE}" &&
         echo ${GITHUB_WORKSPACE} &&

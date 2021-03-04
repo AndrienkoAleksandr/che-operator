@@ -85,6 +85,8 @@ checkNightlyOlmBundle() {
   echo "[INFO] Nightly Olm bundle is in actual state."
 }
 export GOROOT=/usr/bin/go
+echo "---------------"
+ls "${GOROOT}"
 installOperatorSDK
 echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
 echo ">>>>>>>> ${GO111MODULE}"
@@ -98,6 +100,6 @@ pwd
 echo "============"
 git status
 echo "============"
-checkNightlyOlmBundle
+# checkNightlyOlmBundle
 
 echo "[INFO] Done."

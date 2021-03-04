@@ -23,8 +23,8 @@ jobs:
     - uses: actions/checkout@v2
     - name: Che operator code check.
       run: >-
-        export GO111MODULES=true &&
-        echo "$GO111MODULE" &&
+        export GO111MODULES=on &&
+        echo ">>>>>>>> ${GO111MODULE}" &&
         echo ${GITHUB_WORKSPACE} &&
         ls ${GITHUB_WORKSPACE} &&
         ${GITHUB_WORKSPACE}/.github/bin/check-nightly-olm-bundle.sh

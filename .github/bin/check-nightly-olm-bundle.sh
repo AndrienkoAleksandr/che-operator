@@ -92,7 +92,8 @@ echo ">>>>>>>> ${GOPATH}"
 echo "GO Root: ===${GOROOT}==="
 which go
 echo ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>"
-# check_che_crds
+check_che_crds
+echo "GO Root: ===${GOROOT}==="
 pwd
 echo "============"
 git status

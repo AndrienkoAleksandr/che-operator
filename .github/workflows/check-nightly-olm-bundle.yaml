@@ -26,6 +26,7 @@ jobs:
         fetch-depth: 0
     - name: Che operator code check.
       run: >-
+        echo "$GO111MODULE" &&
         export GOPATH="${GITHUB_WORKSPACE}/go" &&
         echo "GOPATH: ${GOPATH}" &&
         export GITHUB_WORKSPACE="${GOPATH}/src/github.com/eclipse/${{ github.repository }}" &&

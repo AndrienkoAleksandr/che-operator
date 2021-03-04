@@ -17,18 +17,13 @@ on:
       - master
       - testBranch
 jobs:
-  build:
+  check-code:
     runs-on: ubuntu-20.04
     steps:
     - uses: actions/checkout@v2
-      with:
-        path: go/src/github.com/eclipse/${{ github.repository }}
-        fetch-depth: 0
     - name: Che operator code check.
       run: >-
         echo "$GO111MODULE" &&
-        export GOPATH="${GITHUB_WORKSPACE}/go" &&
-        echo "GOPATH: ${GOPATH}" &&
-        export GITHUB_WORKSPACE="${GOPATH}/src/github.com/eclipse/${{ github.repository }}" &&
-        cd ${GITHUB_WORKSPACE} &&
-        .github/bin/check-nightly-olm-bundle.sh
+        echo ${GITHUB_WORKSPACE} &&
+        ls ${GITHUB_WORKSPACE} &&
+        ${GITHUB_WORKSPACE}/.github/bin/check-nightly-olm-bundle.sh

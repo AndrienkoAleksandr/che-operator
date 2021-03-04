@@ -22,8 +22,9 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Che operator code check.
+      env:
+        GO111MODULES: on
       run: >-
-        export GO111MODULES=on &&
         echo ">>>>>>>> ${GO111MODULE}" &&
         echo ${GITHUB_WORKSPACE} &&
         ls ${GITHUB_WORKSPACE} &&

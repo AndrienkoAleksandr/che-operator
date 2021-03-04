@@ -100,6 +100,7 @@ do
   cp -rf "${crdsDir}" "${generateFolder}/"
 
   "${OPERATOR_SDK_BINARY}" generate csv \
+  --verbose \
   --csv-version "${newNightlyBundleVersion}" \
   --deploy-dir "${generateFolder}" \
   --output-dir "${bundleFolder}" 2>&1 | sed -e 's/^/      /'

@@ -87,6 +87,8 @@ checkNightlyOlmBundle() {
 
 installOperatorSDK
 check_che_crds
+pwd
+git status
 checkNightlyOlmBundle
 
 echo "[INFO] Done."

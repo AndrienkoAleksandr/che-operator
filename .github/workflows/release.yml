@@ -47,7 +47,7 @@ jobs:
           # Todo: set up eclipse org
           IMAGE_REGISTRY_USER_NAME: aandriienko
         run: |
-          CHE_VERSION=${{ github.event.inputs.version }}
+          CHE_VERSION=7.26.2
           echo "CHE_VERSION=${CHE_VERSION}"
           BRANCH=${CHE_VERSION%.*}.x
           echo "BRANCH=${BRANCH}"

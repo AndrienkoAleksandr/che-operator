@@ -27,7 +27,7 @@ init() {
   PREPARE_COMMUNITY_OPERATORS_UPDATE=false
   RELEASE_DIR=$(cd "$(dirname "$0")"; pwd)
   FORCE_UPDATE=""
-  BUILDX_PLATFORMS="linux/amd64"
+  BUILDX_PLATFORMS="linux/amd64,linux/ppc64le"
   DEV_WORKSPACE_CONTROLLER_VERSION="master"
 
   if [[ $# -lt 1 ]]; then usage; exit; fi
@@ -162,7 +162,7 @@ releaseOperatorCode() {
   docker login quay.io -u "${QUAY_ECLIPSE_CHE_USERNAME}" -p "${QUAY_ECLIPSE_CHE_PASSWORD}"
 
   echo "[INFO] releaseOperatorCode :: Build operator image in platforms: $BUILDX_PLATFORMS"
-  docker buildx build --build-arg DEV_WORKSPACE_CONTROLLER_VERSION=${DEV_WORKSPACE_CONTROLLER_VERSION} --platform "$BUILDX_PLATFORMS" --push -t "quay.io/aandriienko/che-operator:${RELEASE}" .
+  docker buildx build --build-arg DEV_WORKSPACE_CONTROLLER_VERSION=${DEV_WORKSPACE_CONTROLLER_VERSION} --platform "$BUILDX_PLATFORMS" -t "quay.io/aandriienko/che-operator:${RELEASE}" .
 }
 
 updateNightlyOlmFiles() {

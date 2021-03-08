@@ -27,7 +27,7 @@ init() {
   PREPARE_COMMUNITY_OPERATORS_UPDATE=false
   RELEASE_DIR=$(cd "$(dirname "$0")"; pwd)
   FORCE_UPDATE=""
-  BUILDX_PLATFORMS="linux/amd64,linux/ppc64le"
+  BUILDX_PLATFORMS="linux/amd64"
   DEV_WORKSPACE_CONTROLLER_VERSION="master"
 
   if [[ $# -lt 1 ]]; then usage; exit; fi

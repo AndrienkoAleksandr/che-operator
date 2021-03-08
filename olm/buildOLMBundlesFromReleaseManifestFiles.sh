@@ -56,3 +56,4 @@ do
 
     popd || true
 done
+echo "Done"

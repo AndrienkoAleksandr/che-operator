@@ -78,6 +78,7 @@ do
 
   setLatestReleasedVersion
   downloadLatestReleasedBundleCRCRD
+  packageName=$(getPackageName "${platform}")
 
   echo "[INFO] Will create release '${RELEASE}' from nightly version ${lastPackageNightlyVersion}'"
 
@@ -87,7 +88,9 @@ do
   -e 's|"identityProviderImage": *"quay.io/eclipse/che-keycloak:nightly"|"identityProviderImage": ""|' \
   -e 's|"devfileRegistryImage": *"quay.io/eclipse/che-devfile-registry:nightly"|"devfileRegistryImage": ""|' \
   -e 's|"pluginRegistryImage": *"quay.io/eclipse/che-plugin-registry:nightly"|"pluginRegistryImage": ""|' \
+  -e "/^  replaces: ${packageName}.v.*/d" \
   -e "s/^  version: ${lastPackageNightlyVersion}/  version: ${RELEASE}/" \
+  -e "/^  version: ${RELEASE}/i\ \ replaces: ${packageName}.v${LAST_RELEASE_VERSION}" \
   -e "s/: nightly/: ${RELEASE}/" \
   -e "s/:nightly/:${RELEASE}/" \
   -e "s/${lastPackageNightlyVersion}/${RELEASE}/" \

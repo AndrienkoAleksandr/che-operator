@@ -280,6 +280,8 @@ bundle: manifests kustomize ## Generate bundle manifests and metadata, then vali
 	BUNDLE_DIR="bundle/$(DEFAULT_CHANNEL)/$${BUNDLE_PACKAGE}"
 	GENERATED_CSV_NAME=$${BUNDLE_PACKAGE}.clusterserviceversion.yaml
 	DESIRED_CSV_NAME=che-operator.clusterserviceversion.yaml
+	GENERATED_CRD_NAME=org.eclipse.che_checlusters.yaml
+	DESIRED_CRD_NAME=org_v1_che_crd.yaml
 
 	$(OPERATOR_SDK_BINARY) generate kustomize manifests -q
 	cd config/manager && $(KUSTOMIZE) edit set image controller=$(IMG) && cd ../..
@@ -294,6 +296,7 @@ bundle: manifests kustomize ## Generate bundle manifests and metadata, then vali
 
 	cd $${BUNDLE_DIR}/manifests;
 	mv $${GENERATED_CSV_NAME} $${DESIRED_CSV_NAME}
+	mv $${GENERATED_CRD_NAME} $${DESIRED_CRD_NAME}
 	cd $(mkfile_dir)
 
 	$(OPERATOR_SDK_BINARY) bundle validate ./$${BUNDLE_DIR}

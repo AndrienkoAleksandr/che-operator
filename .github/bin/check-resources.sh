@@ -78,8 +78,8 @@ checkNightlyOlmBundle() {
   # files to check
   local CSV_FILE_KUBERNETES="${ROOT_PROJECT_DIR}/bundle/nightly/eclipse-che-preview-kubernetes/manifests/che-operator.clusterserviceversion.yaml"
   local CSV_FILE_OPENSHIFT="${ROOT_PROJECT_DIR}/bundle/nightly/eclipse-che-preview-openshift/manifests/che-operator.clusterserviceversion.yaml"
-  local CRD_FILE_KUBERNETES="${ROOT_PROJECT_DIR}/bundle/nightly/eclipse-che-preview-kubernetes/manifests/org.eclipse.che_checlusters.yaml"
-  local CRD_FILE_OPENSHIFT="${ROOT_PROJECT_DIR}/bundle/nightly/eclipse-che-preview-openshift/manifests/org.eclipse.che_checlusters.yaml"
+  local CRD_FILE_KUBERNETES="${ROOT_PROJECT_DIR}/bundle/nightly/eclipse-che-preview-kubernetes/manifests/org_v1_che_crd.yaml"
+  local CRD_FILE_OPENSHIFT="${ROOT_PROJECT_DIR}/bundle/nightly/eclipse-che-preview-openshift/manifests/org_v1_che_crd.yaml"
 
   changedFiles=($(git diff --name-only))
   if [[ " ${changedFiles[*]} " =~ $CSV_FILE_OPENSHIFT ]] || [[ " ${changedFiles[*]} " =~ $CSV_FILE_OPENSHIFT ]] || \

@@ -140,7 +140,7 @@ updateNighltyBundle() {
     addLicenseHeader "${ROOT_PROJECT_DIR}/config/crd/bases/org_v1_che_crd.yaml"
 
     # templateCRD="${ROOT_PROJECT_DIR}/config/crd/bases/org_v1_che_crd.yaml"
-    # platformCRD="${NIGHTLY_BUNDLE_PATH}/manifests/org.eclipse.che_checlusters.yaml"
+    # platformCRD="${NIGHTLY_BUNDLE_PATH}/manifests/org_v1_che_crd.yaml"
 
     # cp -rf $templateCRD $platformCRD
     # if [[ $platform == "openshift" ]]; then

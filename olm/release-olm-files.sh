@@ -49,6 +49,7 @@ downloadLatestReleasedBundleCRCRD() {
     wget "https://raw.githubusercontent.com/eclipse-che/che-operator/${LAST_RELEASE_VERSION}/olm/eclipse-che-preview-${platform}/deploy/olm-catalog/eclipse-che-preview-${platform}/${LAST_RELEASE_VERSION}/eclipse-che-preview-${platform}.crd.yaml" \
           -q -O "${PRE_RELEASE_CRD}"
   fi
+  # todo
 }
 
 if [[ "$1" =~ $REGEX ]]

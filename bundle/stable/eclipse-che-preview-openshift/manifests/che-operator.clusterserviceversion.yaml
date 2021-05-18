@@ -73,7 +73,7 @@ metadata:
     operatorframework.io/suggested-namespace: eclipse-che
     repository: https://github.com/eclipse-che/che-operator
     support: Eclipse Foundation
-  name: eclipse-che-preview-openshift.v7.30.1
+  name: eclipse-che-preview-openshift.v7.29.0
   namespace: placeholder
 spec:
   apiservicedefinitions: {}
@@ -977,7 +977,7 @@ spec:
                       - name: OPERATOR_NAME
                         value: che-operator
                       - name: CHE_VERSION
-                        value: 7.30.1
+                        value: 7.29.0
                       - name: RELATED_IMAGE_che_server
                         value: quay.io/eclipse/che-server@sha256:cfb1ed6b8bdaac80bf80bf108612e24cb97a03d44e34fd966d333d68a2ac6a8f
                       - name: RELATED_IMAGE_dashboard
@@ -1359,11 +1359,11 @@ spec:
   provider:
     name: Eclipse Foundation
   replaces: eclipse-che-preview-openshift.v7.30.0
-  version: 7.30.1
+  version: 7.29.0
   relatedImages:
-    - name: che-operator-7.30.1
+    - name: che-operator-7.29.0
       image: quay.io/eclipse/che-operator@sha256:1f015b1c4fb8d934d6423e6835e3996266444ff2f8f2261cab6ce75f5bef20d9
-      # tag: quay.io/eclipse/che-operator:7.30.1
+      # tag: quay.io/eclipse/che-operator:7.29.0
     - name: configbump-0.1.4
       image: quay.io/che-incubator/configbump@sha256:175ff2ba1bd74429de192c0a9facf39da5699c6da9f151bd461b3dc8624dd532
       # tag: quay.io/che-incubator/configbump:0.1.4
@@ -1379,30 +1379,30 @@ spec:
     - name: che--traefik-v2.3.2-6e6d4dc5a19afe06778ca092cdbbb98e31cb9f9c313edafa23f81a0e6ddf8a23
       image: quay.io/eclipse/che--traefik@sha256:6e6d4dc5a19afe06778ca092cdbbb98e31cb9f9c313edafa23f81a0e6ddf8a23
       # tag: quay.io/eclipse/che--traefik:v2.3.2-6e6d4dc5a19afe06778ca092cdbbb98e31cb9f9c313edafa23f81a0e6ddf8a23
-    - name: che-dashboard-7.30.1
+    - name: che-dashboard-7.29.0
       image: quay.io/eclipse/che-dashboard@sha256:e77e47a9505421b8a5f765969b5fff720a87b63bd43afb1731eec20f57dd49bd
-      # tag: quay.io/eclipse/che-dashboard:7.30.1
-    - name: che-devfile-registry-7.30.1
+      # tag: quay.io/eclipse/che-dashboard:7.29.0
+    - name: che-devfile-registry-7.29.0
       image: quay.io/eclipse/che-devfile-registry@sha256:b786915bd06062ae78d689bd9d437c81ed3699188c9735f7516fa533604101a5
-      # tag: quay.io/eclipse/che-devfile-registry:7.30.1
+      # tag: quay.io/eclipse/che-devfile-registry:7.29.0
     - name: che-jwtproxy-0.10.0
       image: quay.io/eclipse/che-jwtproxy@sha256:881d1c91e7f5840314f25104ef5c0acee59ed484a5f9ef39daf3008725ea1033
       # tag: quay.io/eclipse/che-jwtproxy:0.10.0
-    - name: che-keycloak-7.30.1
+    - name: che-keycloak-7.29.0
       image: quay.io/eclipse/che-keycloak@sha256:f564569d7631be6fc0a37116fbb962d6a4958e0847672a078ce19f6a9f242e7d
-      # tag: quay.io/eclipse/che-keycloak:7.30.1
+      # tag: quay.io/eclipse/che-keycloak:7.29.0
     - name: che-plugin-artifacts-broker-v3.4.0
       image: quay.io/eclipse/che-plugin-artifacts-broker@sha256:4891a6e19be9eae59372f4b31144653f9bd1284e0301ecfe896a099ca6a12b58
       # tag: quay.io/eclipse/che-plugin-artifacts-broker:v3.4.0
     - name: che-plugin-metadata-broker-v3.4.0
       image: quay.io/eclipse/che-plugin-metadata-broker@sha256:df1ea2eadb28dbc97761adf4ea984af5ca941025a67b39c6abe373816a84bba9
       # tag: quay.io/eclipse/che-plugin-metadata-broker:v3.4.0
-    - name: che-plugin-registry-7.30.1
+    - name: che-plugin-registry-7.29.0
       image: quay.io/eclipse/che-plugin-registry@sha256:211e9ccccbefaf193208718778fe611ab948674e924b8fe5e7c6e888170e273e
-      # tag: quay.io/eclipse/che-plugin-registry:7.30.1
-    - name: che-server-7.30.1
+      # tag: quay.io/eclipse/che-plugin-registry:7.29.0
+    - name: che-server-7.29.0
       image: quay.io/eclipse/che-server@sha256:cfb1ed6b8bdaac80bf80bf108612e24cb97a03d44e34fd966d333d68a2ac6a8f
-      # tag: quay.io/eclipse/che-server:7.30.1
+      # tag: quay.io/eclipse/che-server:7.29.0
     - name: ubi8-minimal-8.3-298.1618432845
       image: registry.access.redhat.com/ubi8-minimal@sha256:2f6b88c037c0503da7704bccd3fc73cb76324101af39ad28f16460e7bce98324
       # tag: registry.access.redhat.com/ubi8-minimal:8.3-298.1618432845
@@ -1592,51 +1592,51 @@ spec:
     - name: che--centos--mysql-57-centos7-latest-e08ee4d43b7356607685b69bde6335e27cf20c020f345b6c6c59400183882764
       image: quay.io/eclipse/che--centos--mysql-57-centos7@sha256:e08ee4d43b7356607685b69bde6335e27cf20c020f345b6c6c59400183882764
       # tag: quay.io/eclipse/che--centos--mysql-57-centos7:latest-e08ee4d43b7356607685b69bde6335e27cf20c020f345b6c6c59400183882764
-    - name: che-cpp-rhel7-7.30.1
+    - name: che-cpp-rhel7-7.29.0
       image: quay.io/eclipse/che-cpp-rhel7@sha256:ab1f0c9dae89f9bd6d400ef44d23806fce36cb40c2813ae7b527d74ca5ef2bea
-      # tag: quay.io/eclipse/che-cpp-rhel7:7.30.1
-    - name: che-dotnet-2.2-7.30.1
+      # tag: quay.io/eclipse/che-cpp-rhel7:7.29.0
+    - name: che-dotnet-2.2-7.29.0
       image: quay.io/eclipse/che-dotnet-2.2@sha256:376e8679a0b3431909de5e94e723428de1e3698f7fc8f1250ceb33c291e08da3
-      # tag: quay.io/eclipse/che-dotnet-2.2:7.30.1
-    - name: che-dotnet-3.1-7.30.1
+      # tag: quay.io/eclipse/che-dotnet-2.2:7.29.0
+    - name: che-dotnet-3.1-7.29.0
       image: quay.io/eclipse/che-dotnet-3.1@sha256:82b8ed6eda0f085cca99f8e01439cdb8e3d39ed1740866616ef44ba5841afb60
-      # tag: quay.io/eclipse/che-dotnet-3.1:7.30.1
-    - name: che-golang-1.14-7.30.1
+      # tag: quay.io/eclipse/che-dotnet-3.1:7.29.0
+    - name: che-golang-1.14-7.29.0
       image: quay.io/eclipse/che-golang-1.14@sha256:d49aba46d9e9c8225ee225fa95c77daa788e0741e50c56b10b69fec5fb66c534
-      # tag: quay.io/eclipse/che-golang-1.14:7.30.1
-    - name: che-java11-gradle-7.30.1
+      # tag: quay.io/eclipse/che-golang-1.14:7.29.0
+    - name: che-java11-gradle-7.29.0
       image: quay.io/eclipse/che-java11-gradle@sha256:dd3727cfcc789532d93dc73746b9232b3ed57b351e963244bb353e07c4f7b8e2
-      # tag: quay.io/eclipse/che-java11-gradle:7.30.1
-    - name: che-java11-maven-7.30.1
+      # tag: quay.io/eclipse/che-java11-gradle:7.29.0
+    - name: che-java11-maven-7.29.0
       image: quay.io/eclipse/che-java11-maven@sha256:370d51c378d7d8d176e77bdfda31e76bb469d4eacfd2ce5feebdeb188b6c311a
-      # tag: quay.io/eclipse/che-java11-maven:7.30.1
-    - name: che-java8-maven-7.30.1
+      # tag: quay.io/eclipse/che-java11-maven:7.29.0
+    - name: che-java8-maven-7.29.0
       image: quay.io/eclipse/che-java8-maven@sha256:8f2e8c6c25f4a037919076c2dd69f6323cdf64c53d14ae72893331d6d98f9f20
-      # tag: quay.io/eclipse/che-java8-maven:7.30.1
-    - name: che-nodejs10-community-7.30.1
+      # tag: quay.io/eclipse/che-java8-maven:7.29.0
+    - name: che-nodejs10-community-7.29.0
       image: quay.io/eclipse/che-nodejs10-community@sha256:bd9d72f73b366ef717219b0eab7374be2fd058056c6b1e3877410c02fc3ecf91
-      # tag: quay.io/eclipse/che-nodejs10-community:7.30.1
-    - name: che-nodejs10-ubi-7.30.1
+      # tag: quay.io/eclipse/che-nodejs10-community:7.29.0
+    - name: che-nodejs10-ubi-7.29.0
       image: quay.io/eclipse/che-nodejs10-ubi@sha256:9e7d5933b9c8e45960a87ba1032815a9d5f57c17da98b8666d57540a1d0c1e36
-      # tag: quay.io/eclipse/che-nodejs10-ubi:7.30.1
-    - name: che-nodejs12-community-7.30.1
+      # tag: quay.io/eclipse/che-nodejs10-ubi:7.29.0
+    - name: che-nodejs12-community-7.29.0
       image: quay.io/eclipse/che-nodejs12-community@sha256:b8eda41bba84039b22394c1796174d03dd4a011f800ddc1080b2c83bfb720e4a
-      # tag: quay.io/eclipse/che-nodejs12-community:7.30.1
-    - name: che-nodejs8-centos-7.30.1
+      # tag: quay.io/eclipse/che-nodejs12-community:7.29.0
+    - name: che-nodejs8-centos-7.29.0
       image: quay.io/eclipse/che-nodejs8-centos@sha256:2e86da6d502522f4b0d7b42f5897f6456ba78f05c11ece17898bcfcb535950e2
-      # tag: quay.io/eclipse/che-nodejs8-centos:7.30.1
-    - name: che-php-7-7.30.1
+      # tag: quay.io/eclipse/che-nodejs8-centos:7.29.0
+    - name: che-php-7-7.29.0
       image: quay.io/eclipse/che-php-7@sha256:a71036da062d88a5bb930ed5a6d7c3b95a09b98336f620fef8d7576a93f061be
-      # tag: quay.io/eclipse/che-php-7:7.30.1
-    - name: che-python-3.8-7.30.1
+      # tag: quay.io/eclipse/che-php-7:7.29.0
+    - name: che-python-3.8-7.29.0
       image: quay.io/eclipse/che-python-3.8@sha256:d92aa174d9b244aed4f92bee13e6130d4c8bf127b9da4362e49729ce7254b73e
-      # tag: quay.io/eclipse/che-python-3.8:7.30.1
-    - name: che-quarkus-7.30.1
+      # tag: quay.io/eclipse/che-python-3.8:7.29.0
+    - name: che-quarkus-7.29.0
       image: quay.io/eclipse/che-quarkus@sha256:748caeefdcc807f2721fb3a6c6208f6fa204d691e16c7e903f40415d96a82e5c
-      # tag: quay.io/eclipse/che-quarkus:7.30.1
-    - name: che-rust-1.39-7.30.1
+      # tag: quay.io/eclipse/che-quarkus:7.29.0
+    - name: che-rust-1.39-7.29.0
       image: quay.io/eclipse/che-rust-1.39@sha256:64702020897898beb39e1b2a0f4a90877e5c00a6e56e656bdc12684478079661
-      # tag: quay.io/eclipse/che-rust-1.39:7.30.1
+      # tag: quay.io/eclipse/che-rust-1.39:7.29.0
     - name: ubi8-minimal-8.3
       image: registry.access.redhat.com/ubi8-minimal@sha256:2f6b88c037c0503da7704bccd3fc73cb76324101af39ad28f16460e7bce98324
       # tag: registry.access.redhat.com/ubi8-minimal:8.3

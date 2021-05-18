@@ -48,24 +48,21 @@ updateResources() {
   export NO_DATE_UPDATE="true"
   export NO_INCREMENT="true"
 
-  pushd "${ROOT_PROJECT_DIR}" || true
   source "${ROOT_PROJECT_DIR}/olm/update-resources.sh"
-  popd || true
 }
 
-# check_che_types function check first if pkg/apis/org/v1/che_types.go file suffer modifications and
-# in case of modification should exist also modifications in deploy/crds/* folder.
+# check_che_types function check first if api/v1/checluster_types.go file suffer modifications and
+# in case of modification should exist also modifications in config/crd/bases/* folder.
 checkCRDs() {
     echo "[INFO] Checking CRDs"
 
     # files to check
-    local CRD_V1="deploy/crds/org_v1_che_crd.yaml"
-    local CRD_V1BETA1="deploy/crds/org_v1_che_crd-v1beta1.yaml"
+    local CRD_V1="config/crd/bases/org_v1_che_crd.yaml"
+    local CRD_V1BETA1="config/crd/bases/org_v1_che_crd.yaml"
 
-    pushd "${ROOT_PROJECT_DIR}"
     source "${ROOT_PROJECT_DIR}/olm/update-resources.sh"
 
-    changedFiles=($(git diff --name-only))
+    changedFiles=($(cd ${ROOT_PROJECT_DIR}; git diff --name-only))
 
     # Check if there are any difference in the crds. If yes, then fail check.
     if [[ " ${changedFiles[*]} " =~ $CRD_V1 ]] || [[ " ${changedFiles[*]} " =~ $CRD_V1BETA1 ]]; then
@@ -75,17 +72,14 @@ checkCRDs() {
     else
         echo "[INFO] CRDs files are up to date."
     fi
-    popd
 }
 
 checkNightlyOlmBundle() {
   # files to check
-  local CSV_FILE_KUBERNETES="deploy/olm-catalog/nightly/eclipse-che-preview-kubernetes/manifests/che-operator.clusterserviceversion.yaml"
-  local CSV_FILE_OPENSHIFT="deploy/olm-catalog/nightly/eclipse-che-preview-openshift/manifests/che-operator.clusterserviceversion.yaml"
-  local CRD_FILE_KUBERNETES="deploy/olm-catalog/nightly/eclipse-che-preview-kubernetes/manifests/org_v1_che_crd.yaml"
-  local CRD_FILE_OPENSHIFT="deploy/olm-catalog/nightly/eclipse-che-preview-openshift/manifests/org_v1_che_crd.yaml"
-
-  pushd "${ROOT_PROJECT_DIR}" || true
+  local CSV_FILE_KUBERNETES="${ROOT_PROJECT_DIR}/bundle/nightly/eclipse-che-preview-kubernetes/manifests/che-operator.clusterserviceversion.yaml"
+  local CSV_FILE_OPENSHIFT="${ROOT_PROJECT_DIR}/bundle/nightly/eclipse-che-preview-openshift/manifests/che-operator.clusterserviceversion.yaml"
+  local CRD_FILE_KUBERNETES="${ROOT_PROJECT_DIR}/bundle/nightly/eclipse-che-preview-kubernetes/manifests/org.eclipse.che_checlusters.yaml"
+  local CRD_FILE_OPENSHIFT="${ROOT_PROJECT_DIR}/bundle/nightly/eclipse-che-preview-openshift/manifests/org.eclipse.che_checlusters.yaml"
 
   changedFiles=($(git diff --name-only))
   if [[ " ${changedFiles[*]} " =~ $CSV_FILE_OPENSHIFT ]] || [[ " ${changedFiles[*]} " =~ $CSV_FILE_OPENSHIFT ]] || \
@@ -96,17 +90,13 @@ checkNightlyOlmBundle() {
   else
     echo "[INFO] Nightly bundles are up to date."
   fi
-
-  popd || true
 }
 
 checkDockerfile() {
   # files to check
-  local Dockerfile="Dockerfile"
+  local Dockerfile="${ROOT_PROJECT_DIR}/Dockerfile"
 
-  pushd "${ROOT_PROJECT_DIR}" || true
-
-  changedFiles=($(git diff --name-only))
+  changedFiles=($(cd ${ROOT_PROJECT_DIR}; git diff --name-only))
   if [[ " ${changedFiles[*]} " =~ $Dockerfile ]]; then
     echo "[ERROR] Dockerfile is not up to date"
     echo "[ERROR] Run 'olm/update-resources.sh' to update Dockerfile"
@@ -114,17 +104,13 @@ checkDockerfile() {
   else
     echo "[INFO] Dockerfile is up to date."
   fi
-
-  popd || true
 }
 
 checkOperatorYaml() {
   # files to check
-  local OperatorYaml="deploy/operator.yaml"
+  local OperatorYaml="${ROOT_PROJECT_DIR}/config/manager/manager.yaml"
 
-  pushd "${ROOT_PROJECT_DIR}" || true
-
-  changedFiles=($(git diff --name-only))
+  changedFiles=($(cd ${ROOT_PROJECT_DIR}; git diff --name-only))
   if [[ " ${changedFiles[*]} " =~ $OperatorYaml ]]; then
     echo "[ERROR] $OperatorYaml is not up to date"
     echo "[ERROR] Run 'olm/update-resources.sh' to update $OperatorYaml"
@@ -132,8 +118,6 @@ checkOperatorYaml() {
   else
     echo "[INFO] $OperatorYaml is up to date."
   fi
-
-  popd || true
 }
 
 installOperatorSDK

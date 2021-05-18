@@ -153,9 +153,9 @@ releaseOperatorCode() {
   echo "[INFO] releaseOperatorCode :: Replacing tags"
   replaceImagesTags
 
-  local operatoryaml=$RELEASE_DIR/deploy/operator.yaml
-  echo "[INFO] releaseOperatorCode :: Validate changes for $operatoryaml"
-  checkImageReferences $operatoryaml
+  local operatorYaml=$RELEASE_DIR/config/manager/manager.yaml
+  echo "[INFO] releaseOperatorCode :: Validate changes for $operatorYaml"
+  checkImageReferences $operatorYaml
 
   echo "[INFO] releaseOperatorCode :: Commit changes"
   if git status --porcelain; then
@@ -170,7 +170,7 @@ releaseOperatorCode() {
 }
 
 replaceImagesTags() {
-  OPERATOR_YAML="${RELEASE_DIR}/deploy/operator.yaml"
+  OPERATOR_YAML="${RELEASE_DIR}/config/manager/manager.yaml"
 
   lastDefaultCheServerImage=$(yq -r ".spec.template.spec.containers[] | select(.name == \"che-operator\") | .env[] | select(.name == \"RELATED_IMAGE_che_server\") | .value" "${OPERATOR_YAML}")
   lastDefaultDashboardImage=$(yq -r ".spec.template.spec.containers[] | select(.name == \"che-operator\") | .env[] | select(.name == \"RELATED_IMAGE_dashboard\") | .value" "${OPERATOR_YAML}")
@@ -225,8 +225,8 @@ releaseOlmFiles() {
   . release-olm-files.sh $RELEASE
   cd $RELEASE_DIR
 
-  local openshift=$RELEASE_DIR/deploy/olm-catalog/stable/eclipse-che-preview-openshift/manifests
-  local kubernetes=$RELEASE_DIR/deploy/olm-catalog/stable/eclipse-che-preview-kubernetes/manifests
+  local openshift=$RELEASE_DIR/bundle/stable/eclipse-che-preview-openshift/manifests
+  local kubernetes=$RELEASE_DIR/bundle/stable/eclipse-che-preview-kubernetes/manifests
 
   echo "[INFO] releaseOlmFiles :: Validate changes"
   grep -q "version: "$RELEASE $openshift/che-operator.clusterserviceversion.yaml
@@ -275,7 +275,7 @@ createPRToMainBranch() {
   resetChanges main
   local tmpBranch="copy-csv-to-main"
   git checkout -B $tmpBranch
-  git diff refs/heads/${BRANCH}...refs/heads/${RELEASE_BRANCH} ':(exclude)deploy/operator.yaml' | git apply -3
+  git diff refs/heads/${BRANCH}...refs/heads/${RELEASE_BRANCH} ':(exclude)config/manager/manager.yaml' | git apply -3
   if git status --porcelain; then
     git add -A || true # add new generated CSV files in olm/ folder
     git commit -am "Copy "$RELEASE" csv to main" --signoff
@@ -299,6 +299,7 @@ run() {
   fi
 
   checkoutToReleaseBranch
+
   updateVersionFile
   releaseOperatorCode
   if [[ $RELEASE_OLM_FILES == "true" ]]; then

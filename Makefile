@@ -7,6 +7,9 @@ VERSION ?= 1.0.2
 
 CHANNELS = "nightly"
 
+mkfile_path := $(abspath $(lastword $(MAKEFILE_LIST)))
+mkfile_dir := $(dir $(mkfile_path))
+
 # CHANNELS define the bundle channels used in the bundle.
 # Add a new line here if you would like to change its default config. (E.g CHANNELS = "preview,fast,stable")
 # To re-generate a bundle for other specific channels without changing the standard setup, you can:
@@ -27,6 +30,10 @@ ifneq ($(origin DEFAULT_CHANNEL), undefined)
 BUNDLE_DEFAULT_CHANNEL := --default-channel=$(DEFAULT_CHANNEL)
 endif
 BUNDLE_METADATA_OPTS ?= $(BUNDLE_CHANNELS) $(BUNDLE_DEFAULT_CHANNEL)
+
+# ifeq ($(OPERATOR_SDK_BINARY),)
+OPERATOR_SDK_BINARY ?= operator-sdk
+# endif
 
 # IMAGE_TAG_BASE defines the docker.io namespace and part of the image name for remote images.
 # This variable is used to construct full image tags for bundle and catalog images.
@@ -84,18 +91,17 @@ removeRequiredAttribute:
 
 	while IFS= read -r line;
 	do
-		if [[ $${REQUIRED} == true ]]; then
-			if [[ $${line} == *"- "* ]]; then
-				continue
-			else
-				REQUIRED=false
-			fi
+		if [ $${REQUIRED} = true ]; then
+			case "$${line}" in
+			*"- "*) continue  ;;
+			*)      REQUIRED=false
+			esac
 		fi
 
-		if [[ $${line} == *"required:"* ]]; then
-			REQUIRED=true
-			continue
-		fi
+		case "$${line}" in
+		*"required:"*) REQUIRED=true; continue  ;;
+		*)
+		esac
 
 		echo  "$${line}" >> $${filePath}.tmp
 	done < "$${filePath}"
@@ -107,14 +113,14 @@ manifests: controller-gen ## Generate WebhookConfiguration, ClusterRole and Cust
 	$(CONTROLLER_GEN) $(CRD_BETA_OPTIONS) rbac:roleName=manager-role webhook paths="./..." output:crd:stdout > config/crd/bases/org_v1_che_crd-v1beta1.yaml
 
 	# Rename and patch CRDs
-	pushd config/crd/bases || true
+	cd config/crd/bases
 
 	mv org.eclipse.che_checlusters.yaml org_v1_che_crd.yaml
 	sed -i.bak '/---/d' org_v1_che_crd-v1beta1.yaml
 	sed -i.bak '/---/d' org_v1_che_crd.yaml
 	rm -rf org_v1_che_crd-v1beta1.yaml.bak org_v1_che_crd.yaml.bak
 
-	popd || true
+	cd ../../..
 
 	$(MAKE) removeRequiredAttribute "filePath=config/crd/bases/org_v1_che_crd-v1beta1.yaml"
 
@@ -158,7 +164,7 @@ uninstall: manifests kustomize ## Uninstall CRDs from the K8s cluster specified 
 	$(KUSTOMIZE) build config/crd | kubectl delete -f -
 
 deploy: manifests kustomize ## Deploy controller to the K8s cluster specified in ~/.kube/config.
-	pushd config/manager || true && $(KUSTOMIZE) edit set image controller=${IMG} && popd || true
+	cd config/manager || true && $(KUSTOMIZE) edit set image controller=${IMG} && cd ../..
 	$(KUSTOMIZE) build config/default | kubectl apply -f -
 
 undeploy: ## Undeploy controller from the K8s cluster specified in ~/.kube/config.
@@ -275,10 +281,10 @@ bundle: manifests kustomize ## Generate bundle manifests and metadata, then vali
 	GENERATED_CSV_NAME=$${BUNDLE_PACKAGE}.clusterserviceversion.yaml
 	DESIRED_CSV_NAME=che-operator.clusterserviceversion.yaml
 
-	operator-sdk generate kustomize manifests -q
-	pushd config/manager || true && $(KUSTOMIZE) edit set image controller=$(IMG) && popd || true
+	$(OPERATOR_SDK_BINARY) generate kustomize manifests -q
+	cd config/manager && $(KUSTOMIZE) edit set image controller=$(IMG) && cd ../..
 	$(KUSTOMIZE) build config/platforms/$(platform) | \
-	operator-sdk generate bundle \
+	$(OPERATOR_SDK_BINARY) generate bundle \
 	-q --overwrite --version $(VERSION) \
 	--package $${BUNDLE_PACKAGE} \
 	--output-dir $${BUNDLE_DIR} \
@@ -286,10 +292,11 @@ bundle: manifests kustomize ## Generate bundle manifests and metadata, then vali
 
 	rm -rf bundle.Dockerfile
 
-	pushd $${BUNDLE_DIR}/manifests || true; 
+	cd $${BUNDLE_DIR}/manifests;
 	mv $${GENERATED_CSV_NAME} $${DESIRED_CSV_NAME}
-	popd || true
-	operator-sdk bundle validate ./$${BUNDLE_DIR}
+	cd $(mkfile_dir)
+
+	$(OPERATOR_SDK_BINARY) bundle validate ./$${BUNDLE_DIR}
 
 bundles:
 	$(shell ./olm/update-resources.sh)

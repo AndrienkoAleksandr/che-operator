@@ -20,7 +20,7 @@ Che operator is implemented using [operator framework](https://github.com/operat
 
 ## CheCluster custom resource
 
-Che operator deploys Eclipse Che using configuration stored in the Kubernetes custom resource(CR). CR object structure defined in the code using `pkg/apis/org/v1/che_types.go` file. Field name defined using the serialization tag `json`, for example `json:"openShiftoAuth"`. Che operator default CR sample is stored in the `deploy/crds/org_v1_che_cr.yaml`. This file should be directly modified if you want to apply new fields with default values, or in case of changing default values for existing fields.
+Che operator deploys Eclipse Che using configuration stored in the Kubernetes custom resource(CR). CR object structure defined in the code using `api/v1/checluster_types.go` file. Field name defined using the serialization tag `json`, for example `json:"openShiftoAuth"`. Che operator default CR sample is stored in the `deploy/crds/org_v1_che_cr.yaml`. This file should be directly modified if you want to apply new fields with default values, or in case of changing default values for existing fields.
 Also, you can apply in the field comments Openshift UI annotations: to display some
 interactive information about these fields on the Openshift UI.
 For example:
@@ -331,7 +331,7 @@ New golang dependencies in the vendor folder should be committed and included in
 
 ### Updating Custom Resource Definition file
 
-Che cluster custom resource definition (CRD) defines Eclipse CheCluster custom resource object. It contains information about object structure, field types, field descriptions. CRD file is a YAML definition located in the folder `deploy/crds`. These files are auto-generated, so do not edit it directly to update them. If you want to add new fields or fix descriptions in the CRDs, make your changes in the file `pkg/apis/org/v1/che_types.go` and run VSCode task `Update resources` or use the terminal
+Che cluster custom resource definition (CRD) defines Eclipse CheCluster custom resource object. It contains information about object structure, field types, field descriptions. CRD file is a YAML definition located in the folder `config/crd/bases`. These files are auto-generated, so do not edit it directly to update them. If you want to add new fields or fix descriptions in the CRDs, make your changes in the file `api/v1/checluster_types.go` and run VSCode task `Update resources` or use the terminal
 
 ```bash
 $ olm/update-resources.sh
@@ -341,12 +341,12 @@ $ olm/update-resources.sh
 
 ### Update nightly OLM bundle
 
-Sometimes, during development, you need to modify some YAML definitions in the `deploy` folder or Che cluster custom resource. There are most frequently changes which should be included to the new OLM bundle:
-  - operator deployment `deploy/operator.yaml`
-  - operator roles/cluster roles permissions. They are defined like role/rolebinding or cluster role/rolebinding yamls in the `deploy` folder.
+Sometimes, during development, you need to modify some YAML definitions in the `config` folder or Che cluster custom resource. There are most frequently changes which should be included to the new OLM bundle:
+  - operator deployment `config/manager/manager.yaml`
+  - operator roles/cluster roles permissions. They are defined like role/rolebinding or cluster role/rolebinding yamls in the `config` folder.
   - operator custom resource CR `deploy/crds/org_v1_che_cr.yaml`. This file contains the default CheCluster sample. Also this file is the default OLM CheCluster sample.
-  - Che cluster custom resource definition `pkg/apis/org/v1/che_types.go`. For example you want to fix some properties description or apply new Che type properties with default values. These changes affect CRD `deploy/crds/org_v1_che_crd.yaml`.
-  - add Openshift ui annotations for Che types properties (`pkg/apis/org/v1/che_types.go`) to display information or interactive elements on the Openshift user interface.
+  - Che cluster custom resource definition `api/v1/checluster_types.go`. For example you want to fix some properties description or apply new Che type properties with default values. These changes affect CRD `deploy/crds/org_v1_che_crd.yaml`.
+  - add Openshift ui annotations for Che types properties (`api/v1/checluster_types.go`) to display information or interactive elements on the Openshift user interface.
 
 For all these cases it's a necessary to generate a new OLM bundle to make these changes working with OLM. Run the VSCode tasks `Update resources` or use the terminal:
 
@@ -354,7 +354,7 @@ For all these cases it's a necessary to generate a new OLM bundle to make these 
 $ olm/update-resources.sh
 ```
 
-Every changes will be included to the `deploy/olm-catalog` bundles and will override all previous changes. OLM bundle changes should be committed to the pull request.
+Every changes will be included to the `bundles` folder and will override all previous changes. OLM bundle changes should be committed to the pull request.
 
 To update a bundle without version incrementation and time update you can use env variables `NO_DATE_UPDATE` and `NO_INCREMENT`. For example, during development you need to update bundle a lot of times with changed che-operator deployment or role, rolebinding and etc, but you don't want to increment the bundle version and time creation, when all desired changes were completed:
 

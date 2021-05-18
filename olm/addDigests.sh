@@ -14,7 +14,7 @@ set +x
 set -e
 
 SCRIPT=$(readlink -f "${BASH_SOURCE[0]}")
-SCRIPTS_DIR=$(dirname $(dirname ${SCRIPT}))
+SCRIPTS_DIR=$(dirname ${SCRIPT})
 BASE_DIR="$(pwd)"
 QUIET=""
 

@@ -4,11 +4,25 @@
     {
       "type": "bashdb",
       "request": "launch",
+      "name": "Make release",
+      "cwd": "${workspaceFolder}",
+      "program": "${workspaceFolder}/make-release.sh",
+      "args": [
+        "7.31.0",
+        "--release",
+        "--check-resources",
+        "--release-olm-files"
+      ]
+    },
+
+    {
+      "type": "bashdb",
+      "request": "launch",
       "name": "Bash-Debug (release-olm-files.sh)",
       "cwd": "${workspaceFolder}",
       "program": "${workspaceFolder}/olm/release-olm-files.sh",
       "args": [
-        "7.13.2"
+        "7.31.0"
       ]
     },
     {

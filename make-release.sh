@@ -130,7 +130,7 @@ if ! grep -q "value: quay.io/eclipse/che-dashboard:$RELEASE" $filename; then
     echo "[ERROR] Unable to find ubi8_minimal image in the $filename"; exit 1
   fi
 
-  echo "7.30.1" > /tmp/che.properties # todo
+  echo "7.30.0" > /tmp/che.properties # todo
 
   plugin_broker_meta_image=$(cat /tmp/che.properties | grep  che.workspace.plugin_broker.metadata.image | cut -d '=' -f2)
   if ! grep -q "value: $plugin_broker_meta_image" $filename; then

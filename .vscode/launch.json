@@ -22,7 +22,7 @@
       "cwd": "${workspaceFolder}",
       "program": "${workspaceFolder}/olm/release-olm-files.sh",
       "args": [
-        "7.31.0"
+        "7.30.0"
       ]
     },
     {

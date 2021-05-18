@@ -1,0 +1,4 @@
+## Append samples you want in your CSV to this file as resources ##
+resources:
+- org.eclipse.che_v1_checluster.yaml
+#+kubebuilder:scaffold:manifestskustomizesamples

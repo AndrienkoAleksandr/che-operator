@@ -3,7 +3,7 @@
     "tasks": [
         {
             "label": "Compile che-operator code",
-            "command": "GOOS=linux GOARCH=${ARCH} CGO_ENABLED=0 go build -mod=vendor -o /tmp/che-operator/che-operator cmd/manager/main.go",
+            "command": "CGO_ENABLED=0 GOOS=linux GOARCH=amd64 GO111MODULE=on go build -a -o /tmp/che-operator/che-operator main.go",
             "options": {
                 "env": {
                     "ARCH": "amd64"
@@ -73,6 +73,8 @@
             },
             "group": "build"
         },
+
+
         {
             "label": "Update resources",
             "command": "./olm/update-resources.sh",
@@ -87,8 +89,8 @@
             "group": "build"
         },
         {
-            "label": "Build and push custom che-operator image: '${IMAGE_REGISTRY_HOST}/${IMAGE_REGISTRY_USER_NAME}/che-operator:nightly'",
-            "command": "docker build --no-cache -t ${IMAGE_REGISTRY_HOST}/${IMAGE_REGISTRY_USER_NAME}/che-operator:nightly . && docker push ${IMAGE_REGISTRY_HOST}/${IMAGE_REGISTRY_USER_NAME}/che-operator:nightly",
+            "label": "Update CR/CRDs",
+            "command": "make generate; make manifests",
             "type": "shell",
             "args": [],
             "problemMatcher": [
@@ -98,6 +100,170 @@
                 "reveal": "always"
             },
             "group": "build"
-        }
+        },
+        {
+            "label": "Build and push custom che-operator image: '${IMAGE_REGISTRY_HOST}/${IMAGE_REGISTRY_USER_NAME}/che-operator:nightly'",
+            "command": "make docker-build docker-push IMG=\"${IMAGE_REGISTRY_HOST}/${IMAGE_REGISTRY_USER_NAME}/che-operator:nightly\"",
+            "type": "shell",
+            "args": [],
+            "problemMatcher": [
+                "$go"
+            ],
+            "presentation": {
+                "reveal": "always"
+            },
+            "group": "build"
+        },
+        {
+            "label": "Install OLM on the cluster",
+            "command": "operator-sdk olm install",
+            "type": "shell",
+            "args": [],
+            "problemMatcher": [
+                "$go"
+            ],
+            "presentation": {
+                "reveal": "always"
+            },
+            "group": "build"
+        },
+
+        {
+            "label": "Build test bundle Kubernetes platform",
+            "command": "export BUNDLE_IMG=\"${IMAGE_REGISTRY_HOST}/${IMAGE_REGISTRY_USER_NAME}/che-operator:v0.0.1\"; make bundle IMG=${BUNDLE_IMG} platform=\"kubebernetes\"; make bundle-build bundle-push BUNDLE_IMG=${BUNDLE_IMG} platform=\"kubebernetes\" --namespace ${NAMESPACE}",
+            "type": "shell",
+            "args": [],
+            "problemMatcher": [
+                "$go"
+            ],
+            "presentation": {
+                "reveal": "always"
+            },
+            "group": "build"
+        },
+        {
+            "label": "Build test bundle Openshift platform",
+            "command": "export BUNDLE_IMG=\"${IMAGE_REGISTRY_HOST}/${IMAGE_REGISTRY_USER_NAME}/che-operator-bundle:v0.0.1\"; make bundle IMG=${BUNDLE_IMG} platform=\"openshift\"; make bundle-build bundle-push BUNDLE_IMG=${BUNDLE_IMG} platform=\"openshift\" --namespace ${NAMESPACE}",
+            "type": "shell",
+            "args": [],
+            "problemMatcher": [
+                "$go"
+            ],
+            "presentation": {
+                "reveal": "always"
+            },
+            "group": "build"
+        },
+        {
+            "label": "Install che-operator via OLM",
+            "command": "operator-sdk run bundle ${IMAGE_REGISTRY_HOST}/${IMAGE_REGISTRY_USER_NAME}/che-operator-bundle:v0.0.1 --namespace ${NAMESPACE}; kubectl apply -f config/samples/org.eclipse.che_v1_checluster.yaml -n ${NAMESPACE}",
+            "type": "shell",
+            "args": [],
+            "problemMatcher": [
+                "$go"
+            ],
+            "presentation": {
+                "reveal": "always"
+            },
+            "group": "build",
+            "options": {
+                "env": {
+                    "NAMESPACE": "eclipse-che"
+                }
+            },
+        },
+        {
+            "label": "UnInstall che-operator via OLM Openshift",
+            "command": "operator-sdk cleanup eclipse-che-preview-openshift",
+            "type": "shell",
+            "args": [],
+            "problemMatcher": [
+                "$go"
+            ],
+            "presentation": {
+                "reveal": "always"
+            },
+            "group": "build"
+        },
+        {
+            "label": "UnInstall che-operator via OLM Kubernetes",
+            "command": "operator-sdk cleanup eclipse-che-preview-kubernetes",
+            "type": "shell",
+            "args": [],
+            "problemMatcher": [
+                "$go"
+            ],
+            "presentation": {
+                "reveal": "always"
+            },
+            "group": "build"
+        },
+
+        {
+            "label": "Install che-operator outside cluster",
+            "command": "make install run",
+            "type": "shell",
+            "args": [],
+            "problemMatcher": [
+                "$go"
+            ],
+            "presentation": {
+                "reveal": "always"
+            },
+            "group": "build"
+        },
+        {
+            "label": "UnInstall che-operator outside cluster",
+            "command": "make uninstall run",
+            "type": "shell",
+            "args": [],
+            "problemMatcher": [
+                "$go"
+            ],
+            "presentation": {
+                "reveal": "always"
+            },
+            "group": "build"
+        },
+
+        {
+            "label": "Deploy che-operator",
+            "command": "make deploy IMG=\"${IMAGE_REGISTRY_HOST}/${IMAGE_REGISTRY_USER_NAME}/che-operator:nightly\"; kubectl apply -f config/samples/org.eclipse.che_v1_checluster.yaml -n eclipse-che",
+            "type": "shell",
+            "args": [],
+            "problemMatcher": [
+                "$go"
+            ],
+            "presentation": {
+                "reveal": "always"
+            },
+            "group": "build"
+        },
+        {
+            "label": "UnDeploy che-operator",
+            "command": "make undeploy",
+            "type": "shell",
+            "args": [],
+            "problemMatcher": [
+                "$go"
+            ],
+            "presentation": {
+                "reveal": "always"
+            },
+            "group": "build"
+        },
+        {
+            "label": "Await debugger attach for che-operator",
+            "command": "make debug",
+            "type": "shell",
+            "args": [],
+            "problemMatcher": [
+                "$go"
+            ],
+            "presentation": {
+                "reveal": "always"
+            },
+            "group": "build"
+        },
     ]
 }

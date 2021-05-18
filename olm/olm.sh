@@ -40,7 +40,7 @@ function getBundlePath() {
     exit 1
   fi
 
-  echo "${ROOT_DIR}/deploy/olm-catalog/${channel}/$(getPackageName "${platform}")"
+  echo "${ROOT_DIR}/bundle/${channel}/$(getPackageName "${platform}")"
 }
 
 getCurrentStableVersion() {
@@ -145,37 +145,56 @@ buildBundleImage() {
     exit 1
   fi
 
-  packageName=$(getPackageName "${platform}")
+  echo "[INFO] build bundle image"
 
-  if [ -z "${OPM_BUNDLE_DIR}" ]; then
-    bundleDir=$(getBundlePath "${platform}" "${channel}")
-  else
-    bundleDir="${OPM_BUNDLE_DIR}"
-  fi
+  pushd "${ROOT_DIR}" || true
 
-  OPM_BUNDLE_MANIFESTS_DIR="${bundleDir}/manifests"
-  pushd "${bundleDir}" || exit
-  echo "[INFO] build bundle image for dir: ${bundleDir}"
-
-  ${OPM_BINARY} alpha bundle build \
-    -d "${OPM_BUNDLE_MANIFESTS_DIR}" \
-    --tag "${CATALOG_BUNDLE_IMAGE_NAME_LOCAL}" \
-    --package "${packageName}" \
-    --channels "${channel}" \
-    --default "${channel}" \
-    --image-builder "${imageTool}"
-
-  SKIP_TLS_VERIFY=""
-  if [ "${imageTool}" == "podman" ]; then
-    SKIP_TLS_VERIFY=" --tls-verify=false"
-  fi
-
-  eval "${imageTool}" push "${CATALOG_BUNDLE_IMAGE_NAME_LOCAL}" "${SKIP_TLS_VERIFY}"
-
-  # ${OPM_BINARY} alpha bundle validate -t "${CATALOG_BUNDLE_IMAGE_NAME_LOCAL}" --image-builder "${imageTool}"
-
-  popd || exit
+  make bundles || true # todo remove it...
+  make bundle-build bundle-push BUNDLE_IMG="${CATALOG_BUNDLE_IMAGE_NAME_LOCAL}" platform="${platform}" IMAGE_TOOL="${imageTool}"
+  popd || true
 }
+
+# Todo...
+# Build catalog source image with index based on bundle image.
+# buildCatalogImage() {
+#   CATALOG_IMAGENAME="${1}"
+#   if [ -z "${CATALOG_IMAGENAME}" ]; then
+#     echo "[ERROR] Please specify first argument: 'catalog image'"
+#     exit 1
+#   fi
+
+#   CATALOG_BUNDLE_IMAGE_NAME_LOCAL="${2}"
+#   if [ -z "${CATALOG_BUNDLE_IMAGE_NAME_LOCAL}" ]; then
+#     echo "[ERROR] Please specify second argument: 'opm bundle image'"
+#     exit 1
+#   fi
+
+#   imageTool="${3}"
+#   if [ -z "${imageTool}" ]; then
+#     echo "[ERROR] Please specify third argument: 'image tool'"
+#     exit 1
+#   fi
+
+#   # forceBuildAndPush="${4}"
+#   # if [ -z "${forceBuildAndPush}" ]; then
+#   #   echo "[ERROR] Please specify fourth argument: 'force build and push: true or false'"
+#   #   exit 1
+#   # fi
+
+#   # optional argument
+#   FROM_INDEX=${5:-""}
+#   if [ -z "${FROM_INDEX}" ]; then
+#     FROM_INDEX=" --from-index  ${CATALOG_IMAGENAME}"
+#   fi
+
+#   pushd "${ROOT_DIR}" || true
+#   make catalog-build catalog-push \
+#        CATALOG_IMG="${CATALOG_IMAGENAME}" \
+#        BUNDLE_IMG="${CATALOG_BUNDLE_IMAGE_NAME_LOCAL}" \
+#        IMAGE_TOOL="${imageTool}"
+#       #  FROM_INDEX_OPT="${FROM_INDEX}"
+#   popd || true
+# }
 
 # Build catalog source image with index based on bundle image.
 buildCatalogImage() {
@@ -248,6 +267,7 @@ buildCatalogImage() {
 
   eval "${imageTool}" push "${CATALOG_IMAGENAME}" "${SKIP_TLS_VERIFY}"
 }
+
 
 # HACK. Unfortunately catalog source image bundle job has image pull policy "IfNotPresent".
 # It makes troubles for test scripts, because image bundle could be outdated with
@@ -397,7 +417,6 @@ spec:
   name: ${packageName}
   source: ${packageName}
   sourceNamespace: ${namespace}
-  startingCSV: ${CSV_NAME}
 EOF
 
   kubectl describe subscription/"${packageName}" -n "${namespace}"

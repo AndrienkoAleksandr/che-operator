@@ -47,12 +47,13 @@ initDefaults() {
 }
 
 initLatestTemplates() {
+rm -rf /tmp/devfile-devworkspace-operator-*
 curl -L https://api.github.com/repos/devfile/devworkspace-operator/zipball/${DEV_WORKSPACE_CONTROLLER_VERSION} > /tmp/devworkspace-operator.zip && \
   unzip /tmp/devworkspace-operator.zip */deploy/deployment/* -d /tmp && \
   mkdir -p /tmp/devworkspace-operator/templates/ && \
   mv /tmp/devfile-devworkspace-operator-*/deploy ${TEMPLATES}/devworkspace
 
-  cp -rf ${OPERATOR_REPO}/deploy/* "${TEMPLATES}/che-operator"
+  cp -rf ${OPERATOR_REPO}/config/* "${TEMPLATES}/che-operator"
 }
 
 initStableTemplates() {
@@ -84,8 +85,20 @@ initStableTemplates() {
   mkdir -p "${LAST_OPERATOR_TEMPLATE}/che-operator"
   mkdir -p "${PREVIOUS_OPERATOR_TEMPLATE}/che-operator"
 
-  cp -rf ${previousOperatorPath}/deploy/* "${PREVIOUS_OPERATOR_TEMPLATE}/che-operator"
-  cp -rf ${lastOperatorPath}/deploy/* "${LAST_OPERATOR_TEMPLATE}/che-operator"
+  compareResult=$(pysemver compare "${PREVIOUS_PACKAGE_VERSION}" "7.31.0")
+  if [ "${compareResult}" == "0" ]; then
+      cp -rf ${previousOperatorPath}/config/* "${PREVIOUS_OPERATOR_TEMPLATE}/che-operator"
+    else
+      cp -rf ${previousOperatorPath}/deploy/* "${PREVIOUS_OPERATOR_TEMPLATE}/che-operator"
+  fi
+
+  compareResult=$(pysemver compare "${LAST_PACKAGE_VERSION}" "7.31.0")
+  if [ "${compareResult}" == "0" ]; then
+      cp -rf ${lastOperatorPath}/config/* "${LAST_OPERATOR_TEMPLATE}/che-operator"
+    else
+      cp -rf ${lastOperatorPath}/deploy/* "${LAST_OPERATOR_TEMPLATE}/che-operator"
+  fi
+  
 }
 
 # Utility to wait for a workspace to be started after workspace:create.
@@ -96,6 +109,7 @@ waitWorkspaceStart() {
     login
 
     chectl workspace:list --chenamespace=${NAMESPACE}
+    # workspaceStatus=$(chectl workspace:list --chenamespace=${NAMESPACE} | tail -1 | awk '{ print $4} ' || true)
     workspaceStatus=$(chectl workspace:list --chenamespace=${NAMESPACE} | tail -1 | awk '{ print $4} ')
 
     if [ "${workspaceStatus}" == "RUNNING" ]; then
@@ -145,17 +159,37 @@ copyCheOperatorImageToMinishift() {
   eval $(minishift docker-env) && docker load -i  /tmp/operator.tar && rm  /tmp/operator.tar
 }
 
+# Prepare chectl che-operator templates
+prepareTemplates() {
+  OPERATOR_TEMPLATES="${TEMPLATES}"/che-operator
+  mkdir -p "${OPERATOR_TEMPLATES}"
+  cp -rf config/rbac/* "${OPERATOR_TEMPLATES}"/
+  cp -rf config/manager/manager.yaml "${OPERATOR_TEMPLATES}"/operator.yaml
+  cp -rf config/crd/bases/ "${OPERATOR_TEMPLATES}"/crds
+  cp -f config/samples/org.eclipse.che_v1_checluster.yaml "${OPERATOR_TEMPLATES}"/crds/org_v1_che_cr.yaml
+}
+
 deployEclipseChe() {
   local installer=$1
   local platform=$2
   local image=$3
   local templates=$4
 
-  echo "[INFO] Eclipse Che custom resource"
-  cat ${templates}/che-operator/crds/org_v1_che_cr.yaml
+  # if [ -z "${LAST_PACKAGE_VERSION:-}" ]; then
+  #   echo "[INFO] Eclipse Che custom resource"
+  #   local crSample=${templates}/che-operator/samples/org.eclipse.che_v1_checluster.yaml
+  #   cat ${crSample}
 
-  echo "[INFO] Eclipse Che operator deployment"
-  cat ${templates}/che-operator/operator.yaml
+  #   echo "[INFO] Eclipse Che operator deployment"
+  #   cat ${templates}/che-operator/manager/manager.yaml
+  # else
+    echo "[INFO] Eclipse Che custom resource"
+    local crSample=${templates}/che-operator/crds/org_v1_che_cr.yaml
+    cat ${crSample}
+
+    echo "[INFO] Eclipse Che operator deployment"
+    cat ${templates}/che-operator/operator.yaml
+  # fi
 
   chectl server:deploy \
     --platform=${platform} \
@@ -163,7 +197,7 @@ deployEclipseChe() {
     --chenamespace ${NAMESPACE} \
     --che-operator-image ${image} \
     --skip-kubernetes-health-check \
-    --che-operator-cr-yaml ${templates}/che-operator/crds/org_v1_che_cr.yaml \
+    --che-operator-cr-yaml ${crSample} \
     --templates ${templates}
 }
 
@@ -231,6 +265,21 @@ disableOpenShiftOAuth() {
   yq -rSY '.spec.auth.openShiftoAuth = false' $file > /tmp/tmp.yaml && mv /tmp/tmp.yaml ${file}
 }
 
+# getCRPath() {
+#   if [ -z "${LAST_PACKAGE_VERSION:-}" ]; then
+#     compareResult=1
+#   else
+#     compareResult=$(pysemver compare "${LAST_PACKAGE_VERSION}" "7.31.0")
+#   fi
+
+#   if [ "${compareResult}" -ge "0" ]; then
+#     local file="${1}/che-operator/samples/org.eclipse.che_v1_checluster.yaml"
+#   else
+#     local file="${1}/che-operator/crds/org_v1_che_cr.yaml"    
+#   fi
+#   echo "${file}"
+# }
+
 disableUpdateAdminPassword() {
   local file="${1}/che-operator/crds/org_v1_che_cr.yaml"
   yq -rSY '.spec.auth.updateAdminPassword = false' $file > /tmp/tmp.yaml && mv /tmp/tmp.yaml ${file}
@@ -265,18 +314,6 @@ setCustomOperatorImage() {
 insecurePrivateDockerRegistry() {
   IMAGE_REGISTRY_HOST="127.0.0.1:5000"
   export IMAGE_REGISTRY_HOST
-
-  # local dockerDaemonConfig="/etc/docker/daemon.json"
-  # sudo mkdir -p "/etc/docker"
-  # sudo touch "${dockerDaemonConfig}"
-
-  # config="{\"insecure-registries\" : [\"${IMAGE_REGISTRY_HOST}\"]}"
-  # echo "${config}" | sudo tee "${dockerDaemonConfig}"
-
-  # if [ -x "$(command -v docker)" ]; then
-  #     echo "[INFO] Restart docker daemon to set up private registry info."
-  #     sudo service docker restart
-  # fi
 }
 
 # Utility to print objects created by Openshift CI automatically

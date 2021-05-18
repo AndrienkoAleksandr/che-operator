@@ -1,0 +1,20 @@
+# permissions for end users to view checlusters.
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: checluster-viewer-role
+rules:
+- apiGroups:
+  - org.eclipse.che
+  resources:
+  - checlusters
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - org.eclipse.che
+  resources:
+  - checlusters/status
+  verbs:
+  - get

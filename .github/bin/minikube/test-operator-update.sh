@@ -25,7 +25,7 @@ source "${OPERATOR_REPO}/olm/olm.sh"
 # Stop execution on any error
 trap "catchFinish" EXIT SIGINT
 
-prepareTemplates() {
+patchTemplates() {
   disableUpdateAdminPassword ${LAST_OPERATOR_TEMPLATE}
   setIngressDomain ${LAST_OPERATOR_TEMPLATE} "$(minikube ip).nip.io"
   setCustomOperatorImage ${TEMPLATES} ${OPERATOR_IMAGE}
@@ -47,6 +47,7 @@ installOperatorMarketPlace
 initLatestTemplates
 initStableTemplates "kubernetes" "stable"
 prepareTemplates
+patchTemplates
 buildCheOperatorImage
 copyCheOperatorImageToMinikube
 runTest

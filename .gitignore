@@ -1,5 +1,8 @@
-# Idea
+# Editor and IDE paraphernalia
 .idea/
+*.swp
+*.swo
+*~
 
 # Temporary Build Files
 tmp
@@ -80,7 +83,9 @@ anaconda-mode/
 *.dll
 *.so
 *.dylib
-cmd/manager/__debug_bin
+__debug_bin
+bin
+testbin/*
 
 # Test binary, build with 'go test -c'
 *.test
@@ -114,4 +119,5 @@ deploy/olm-catalog/nightly/eclipse-che-preview-openshift/generated
 deploy/olm-catalog/stable/eclipse-che-preview-kubernetes/generated
 deploy/olm-catalog/stable/eclipse-che-preview-openshift/generated
 
-# End of https://www.gitignore.io/api/go,vim,emacs,visualstudiocode
+# Kubernetes Generated files - skip generated files, except for vendored files
+# !vendor/**/zz_generated.*

@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2012-2019 Red Hat, Inc.
+// Copyright (c) 2012-2021 Red Hat, Inc.
 // This program and the accompanying materials are made
 // available under the terms of the Eclipse Public License 2.0
 // which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -17,7 +17,7 @@ import (
 
 	"k8s.io/client-go/kubernetes/scheme"
 
-	orgv1 "github.com/eclipse-che/che-operator/pkg/apis/org/v1"
+	"github.com/eclipse-che/che-operator/api/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
 )
@@ -53,7 +53,7 @@ func TestGetValue(t *testing.T) {
 }
 
 func TestReload(t *testing.T) {
-	cheCluster := &orgv1.CheCluster{
+	cheCluster := &v1.CheCluster{
 		ObjectMeta: metav1.ObjectMeta{
 			Namespace:       "eclipse-che",
 			Name:            "eclipse-che",
@@ -61,10 +61,10 @@ func TestReload(t *testing.T) {
 		},
 	}
 
-	orgv1.SchemeBuilder.AddToScheme(scheme.Scheme)
+	v1.SchemeBuilder.AddToScheme(scheme.Scheme)
 	cli := fake.NewFakeClientWithScheme(scheme.Scheme, cheCluster)
 
-	cheCluster = &orgv1.CheCluster{
+	cheCluster = &v1.CheCluster{
 		ObjectMeta: metav1.ObjectMeta{
 			Namespace:       "eclipse-che",
 			Name:            "eclipse-che",

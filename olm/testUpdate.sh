@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright (c) 2012-2020 Red Hat, Inc.
+# Copyright (c) 2012-2021 Red Hat, Inc.
 # This program and the accompanying materials are made
 # available under the terms of the Eclipse Public License 2.0
 # which is available at https://www.eclipse.org/legal/epl-2.0/
@@ -38,18 +38,28 @@ fi
 init() {
   IMAGE_REGISTRY_HOST=${IMAGE_REGISTRY_HOST:-quay.io}
   IMAGE_REGISTRY_USER_NAME=${IMAGE_REGISTRY_USER_NAME:-eclipse}
-  export CATALOG_IMAGENAME="${IMAGE_REGISTRY_HOST}/${IMAGE_REGISTRY_USER_NAME}/eclipse-che-${platform}-opm-catalog:preview"
-
   source "${OPERATOR_REPO}/olm/olm.sh"
 
   OPM_BUNDLE_DIR=$(getBundlePath "${platform}" "${channel}")
   CSV_FILE_PATH="${OPM_BUNDLE_DIR}/manifests/che-operator.clusterserviceversion.yaml"
+
+  CATALOG_BUNDLE_IMAGE="${IMAGE_REGISTRY_HOST}/${IMAGE_REGISTRY_USER_NAME}/che_operator_bundle:0.0.1"
+  CATALOG_IMAGENAME="${IMAGE_REGISTRY_HOST}/${IMAGE_REGISTRY_USER_NAME}/testing_catalog:0.0.1"
+
+  echo "[INFO] Build bundle image... ${CATALOG_BUNDLE_IMAGE}"
+  buildBundleImage "${platform}" "${CATALOG_BUNDLE_IMAGE}" "${channel}" "docker"
+
+  echo "[INFO] Build catalog image... ${CATALOG_BUNDLE_IMAGE}"
+  buildCatalogImage "${CATALOG_IMAGENAME}" "${CATALOG_BUNDLE_IMAGE}" "docker" "false"
+
+  echo "[INFO]: Successfully created catalog source container image and enabled minikube ingress."
 }
 
 run() {
   createNamespace "${namespace}"
 
   installOperatorMarketPlace
+
   installCatalogSource "${platform}" "${namespace}" "${CATALOG_IMAGENAME}"
 
   getBundleListFromCatalogSource "${platform}" "${namespace}"

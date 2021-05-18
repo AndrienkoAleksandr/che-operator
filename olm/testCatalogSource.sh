@@ -99,9 +99,9 @@ buildOLMImages() {
     if [ -n "${OPERATOR_IMAGE}" ];then
       echo "[INFO]: Build operator image ${OPERATOR_IMAGE}..."
       pushd "${OPERATOR_REPO}" || true
-      docker build --no-cache -t "${OPERATOR_IMAGE}" -f Dockerfile .
-      docker push "${OPERATOR_IMAGE}"
-      echo "${OPERATOR_IMAGE}"
+      # docker build --no-cache -t "${OPERATOR_IMAGE}" -f Dockerfile .
+      # docker push "${OPERATOR_IMAGE}"
+      # echo "${OPERATOR_IMAGE}"
       popd || true
 
       # Use operator image in the latest CSV

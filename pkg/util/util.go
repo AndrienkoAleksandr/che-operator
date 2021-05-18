@@ -29,7 +29,7 @@ import (
 	"strings"
 	"time"
 
-	orgv1 "github.com/eclipse-che/che-operator/pkg/apis/org/v1"
+	orgv1 "github.com/eclipse-che/che-operator/api/v1"
 	"github.com/sirupsen/logrus"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
@@ -314,6 +314,7 @@ func getAPIUrlsForOpenShiftV4() (apiUrl string, apiInternalUrl string, err error
 }
 
 func GetDeploymentEnv(deployment *appsv1.Deployment, key string) (value string) {
+	// Todo "metrics proxy" 0 => 1
 	env := deployment.Spec.Template.Spec.Containers[0].Env
 	for i := range env {
 		name := env[i].Name

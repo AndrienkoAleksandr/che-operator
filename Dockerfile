@@ -52,11 +52,11 @@ RUN curl -L https://api.github.com/repos/devfile/devworkspace-operator/zipball/$
     mv /tmp/devfile-devworkspace-operator-*/deploy /tmp/devworkspace-operator/templates/
 
 # upstream, download devworkspace-che-operator templates for every build
-# downstream, copy prefetched zip into /tmp
-RUN curl -L https://api.github.com/repos/che-incubator/devworkspace-che-operator/zipball/${DEV_WORKSPACE_CHE_OPERATOR_VERSION} > /tmp/devworkspace-che-operator.zip && \
-    unzip /tmp/devworkspace-che-operator.zip */deploy/deployment/* -d /tmp && \
-    mkdir -p /tmp/devworkspace-che-operator/templates/ && \
-    mv /tmp/che-incubator-devworkspace-che-operator-*/deploy /tmp/devworkspace-che-operator/templates/
+# # downstream, copy prefetched zip into /tmp
+# RUN curl -L https://api.github.com/repos/che-incubator/devworkspace-che-operator/zipball/${DEV_WORKSPACE_CHE_OPERATOR_VERSION} > /tmp/devworkspace-che-operator.zip && \
+#     unzip /tmp/devworkspace-che-operator.zip */deploy/deployment/* -d /tmp && \
+#     mkdir -p /tmp/devworkspace-che-operator/templates/ && \
+#     mv /tmp/che-incubator-devworkspace-che-operator-*/deploy /tmp/devworkspace-che-operator/templates/
 
 # https://access.redhat.com/containers/?tab=tags#/registry.access.redhat.com/ubi8-minimal
 FROM registry.access.redhat.com/ubi8-minimal:8.3-298.1618432845

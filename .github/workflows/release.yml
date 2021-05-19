@@ -74,7 +74,7 @@ jobs:
           IMAGE_REGISTRY_USER_NAME: eclipse
         run: |
           CHE_VERSION=7.30.0
-          DWO_VERSION=${{ github.event.inputs.dwoVersion }}
+          DWO_VERSION=v0.4.2
           if [[ ${DWO_VERSION} != "v"* ]]; then DWO_VERSION="v${DWO_VERSION}"; fi
           DWO_CHE_VERSION=${{ github.event.inputs.dwoCheVersion }}
           if [[ ${DWO_CHE_VERSION} != "v"* ]]; then DWO_CHE_VERSION="v${DWO_CHE_VERSION}"; fi

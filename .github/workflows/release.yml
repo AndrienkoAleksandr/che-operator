@@ -119,8 +119,8 @@ jobs:
           # perform extra checkouts to ensure branches exist locally
           git checkout ${BRANCH}
           git checkout ${CHE_VERSION}-release
-          force_update=""
-          if [[ ${{ github.event.inputs.forceRecreateTags }} == "true" ]]; then force_update="--force"; fi
+          force_update="--force"
+          # if [[ ${{ github.event.inputs.forceRecreateTags }} == "true" ]]; then force_update="--force"; fi
           ./make-release.sh ${CHE_VERSION} --push-git-changes --pull-requests ${force_update}
       # - name: Create failure MM message
       #   if: ${{ failure() }}

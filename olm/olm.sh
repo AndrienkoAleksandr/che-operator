@@ -153,48 +153,6 @@ buildBundleImage() {
   popd || true
 }
 
-# Todo...
-# Build catalog source image with index based on bundle image.
-# buildCatalogImage() {
-#   CATALOG_IMAGENAME="${1}"
-#   if [ -z "${CATALOG_IMAGENAME}" ]; then
-#     echo "[ERROR] Please specify first argument: 'catalog image'"
-#     exit 1
-#   fi
-
-#   CATALOG_BUNDLE_IMAGE_NAME_LOCAL="${2}"
-#   if [ -z "${CATALOG_BUNDLE_IMAGE_NAME_LOCAL}" ]; then
-#     echo "[ERROR] Please specify second argument: 'opm bundle image'"
-#     exit 1
-#   fi
-
-#   imageTool="${3}"
-#   if [ -z "${imageTool}" ]; then
-#     echo "[ERROR] Please specify third argument: 'image tool'"
-#     exit 1
-#   fi
-
-#   # forceBuildAndPush="${4}"
-#   # if [ -z "${forceBuildAndPush}" ]; then
-#   #   echo "[ERROR] Please specify fourth argument: 'force build and push: true or false'"
-#   #   exit 1
-#   # fi
-
-#   # optional argument
-#   FROM_INDEX=${5:-""}
-#   if [ -z "${FROM_INDEX}" ]; then
-#     FROM_INDEX=" --from-index  ${CATALOG_IMAGENAME}"
-#   fi
-
-#   pushd "${ROOT_DIR}" || true
-#   make catalog-build catalog-push \
-#        CATALOG_IMG="${CATALOG_IMAGENAME}" \
-#        BUNDLE_IMG="${CATALOG_BUNDLE_IMAGE_NAME_LOCAL}" \
-#        IMAGE_TOOL="${imageTool}"
-#       #  FROM_INDEX_OPT="${FROM_INDEX}"
-#   popd || true
-# }
-
 # Build catalog source image with index based on bundle image.
 buildCatalogImage() {
   CATALOG_IMAGENAME="${1}"
@@ -235,38 +193,16 @@ buildCatalogImage() {
     SKIP_TLS_VERIFY=" --tls-verify=false"
   fi
 
-  INDEX_ADD_CMD="${OPM_BINARY} index add \
-       --bundles ${CATALOG_BUNDLE_IMAGE_NAME_LOCAL} \
-       --tag ${CATALOG_IMAGENAME} \
-       --pull-tool ${imageTool} \
-       --build-tool ${imageTool} \
-       --binary-image=quay.io/operator-framework/upstream-opm-builder:v1.15.1 \
-       --mode semver ${BUILD_INDEX_IMAGE_ARG} ${SKIP_TLS_ARG}"
+  pushd "${ROOT_DIR}" || true
 
-  exitCode=0
-  # Execute command and store an error output to the variable for following handling.
-  {
-    error=$(eval "${INDEX_ADD_CMD}" 2>&1 1>&$out) || \
-    {
-      exitCode="$?";
-      echo "[INFO] ${exitCode}";
-      true;
-    }
-  } {out}>&1
-  if [[ "${error}" == *"already exists, Bundle already added that provides package and csv"* ]] && [[ "${forceBuildAndPush}" == "true" ]]; then
-    echo "[INFO] Ignore error 'Bundle already added'"
-    # Catalog bundle image contains bundle reference, continue without unnecessary push operation
-    return
-  else
-    echo "[INFO] ${exitCode}"
-    if [ "${exitCode}" != 0 ]; then
-      exit "${exitCode}"
-    fi
-  fi
+  make catalog-build catalog-push \
+      CATALOG_IMG="${CATALOG_IMAGENAME}" \
+      BUNDLE_IMG="${CATALOG_BUNDLE_IMAGE_NAME_LOCAL}" \
+      IMAGE_TOOL="${imageTool}" \
+      FROM_INDEX_OPT="${FROM_INDEX}"
 
-  eval "${imageTool}" push "${CATALOG_IMAGENAME}" "${SKIP_TLS_VERIFY}"
+  popd || true
 }
-
 
 # HACK. Unfortunately catalog source image bundle job has image pull policy "IfNotPresent".
 # It makes troubles for test scripts, because image bundle could be outdated with

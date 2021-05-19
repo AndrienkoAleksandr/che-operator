@@ -380,7 +380,13 @@ endif
 # https://github.com/operator-framework/community-operators/blob/7f1438c/docs/packaging-operator.md#updating-your-existing-operator
 .PHONY: catalog-build
 catalog-build: opm ## Build a catalog image.
-	$(OPM) index add --binary-image=quay.io/operator-framework/upstream-opm-builder:v1.15.1 --container-tool $(IMAGE_TOOL) --mode semver --tag $(CATALOG_IMG) --bundles $(BUNDLE_IMGS) $(FROM_INDEX_OPT)
+	$(OPM) index add \
+	--build-tool $(IMAGE_TOOL) \
+	--bundles $(BUNDLE_IMGS) \
+	--tag $(CATALOG_IMG) \
+	--pull-tool $(IMAGE_TOOL) \
+	--binary-image=quay.io/operator-framework/upstream-opm-builder:v1.15.1 \
+	--mode semver $(FROM_INDEX_OPT)
 
 # Push the catalog image.
 .PHONY: catalog-push

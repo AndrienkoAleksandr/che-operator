@@ -10,6 +10,7 @@
 #    Red Hat, Inc. - initial API and implementation
 
 # permissions to do leader election.
+
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:

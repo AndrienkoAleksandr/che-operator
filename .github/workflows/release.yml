@@ -97,7 +97,7 @@ jobs:
           #   OPERATOR_SDK=$(sed -r 's|operator-sdk:\s*(.*)|\1|' REQUIREMENTS)
           #   wget https://github.com/operator-framework/operator-sdk/releases/download/${OPERATOR_SDK}/operator-sdk-${OPERATOR_SDK}-x86_64-linux-gnu -O $OP_SDK_DIR/operator-sdk
           # fi
-          chmod +x $OP_SDK_DIR/operator-sdk
+          # chmod +x $OP_SDK_DIR/operator-sdk
           export PATH="$PATH:$OP_SDK_DIR"
           export QUAY_ECLIPSE_CHE_USERNAME=${{ secrets.QUAY_USERNAME }}
           export QUAY_ECLIPSE_CHE_PASSWORD=${{ secrets.QUAY_PASSWORD }}

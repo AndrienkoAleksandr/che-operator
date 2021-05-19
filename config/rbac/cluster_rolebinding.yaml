@@ -25,4 +25,3 @@ roleRef:
   kind: ClusterRole
   name: che-operator
   apiGroup: rbac.authorization.k8s.io
-  

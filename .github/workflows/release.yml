@@ -73,7 +73,7 @@ jobs:
           IMAGE_REGISTRY_HOST: quay.io
           IMAGE_REGISTRY_USER_NAME: eclipse
         run: |
-          CHE_VERSION=${{ github.event.inputs.version }}
+          CHE_VERSION=7.30.0
           DWO_VERSION=${{ github.event.inputs.dwoVersion }}
           if [[ ${DWO_VERSION} != "v"* ]]; then DWO_VERSION="v${DWO_VERSION}"; fi
           DWO_CHE_VERSION=${{ github.event.inputs.dwoCheVersion }}

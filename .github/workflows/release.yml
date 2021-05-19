@@ -1,6 +1,9 @@
 # This Workflow performs a full release of che-operator
 name: Release Che Operator
 on:
+  push:
+    branches:
+      - main
   workflow_dispatch:
     inputs:
       version:

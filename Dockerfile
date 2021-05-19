@@ -46,10 +46,10 @@ RUN export ARCH="$(uname -m)" && if [[ ${ARCH} == "x86_64" ]]; then export ARCH=
 
 # upstream, download devworkspace-operator templates for every build
 # downstream, copy prefetched zip into /tmp
-RUN curl -L https://api.github.com/repos/devfile/devworkspace-operator/zipball/${DEV_WORKSPACE_CONTROLLER_VERSION} > /tmp/devworkspace-operator.zip && \
-    unzip /tmp/devworkspace-operator.zip */deploy/deployment/* -d /tmp && \
-    mkdir -p /tmp/devworkspace-operator/templates/ && \
-    mv /tmp/devfile-devworkspace-operator-*/deploy /tmp/devworkspace-operator/templates/
+# RUN curl -L https://api.github.com/repos/devfile/devworkspace-operator/zipball/${DEV_WORKSPACE_CONTROLLER_VERSION} > /tmp/devworkspace-operator.zip && \
+#     unzip /tmp/devworkspace-operator.zip */deploy/deployment/* -d /tmp && \
+#     mkdir -p /tmp/devworkspace-operator/templates/ && \
+#     mv /tmp/devfile-devworkspace-operator-*/deploy /tmp/devworkspace-operator/templates/
 
 # upstream, download devworkspace-che-operator templates for every build
 # # downstream, copy prefetched zip into /tmp
@@ -67,8 +67,8 @@ COPY --from=builder /che-operator/templates/keycloak-update.sh /tmp/keycloak-upd
 COPY --from=builder /che-operator/templates/oauth-provision.sh /tmp/oauth-provision.sh
 COPY --from=builder /che-operator/templates/delete-identity-provider.sh /tmp/delete-identity-provider.sh
 COPY --from=builder /che-operator/templates/create-github-identity-provider.sh /tmp/create-github-identity-provider.sh
-COPY --from=builder /tmp/devworkspace-operator/templates/deploy /tmp/devworkspace-operator/templates
-COPY --from=builder /tmp/devworkspace-che-operator/templates/deploy /tmp/devworkspace-che-operator/templates
+# COPY --from=builder /tmp/devworkspace-operator/templates/deploy /tmp/devworkspace-operator/templates
+# COPY --from=builder /tmp/devworkspace-che-operator/templates/deploy /tmp/devworkspace-che-operator/templates
 
 WORKDIR /
 USER 65532:65532

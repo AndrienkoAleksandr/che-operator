@@ -103,11 +103,13 @@ download-operator-sdk:
 	else
 		OP_SDK_PATH="$(OP_SDK_DIR)/operator-sdk"
 	fi
-	echo "[INFO] operator-sdk will be downloaded to: $${OP_SDK_PATH}"
+	
+	echo "[INFO] Downloading operator-sdk..."
 
 	OPERATOR_SDK_DL_URL=https://github.com/operator-framework/operator-sdk/releases/download/$${OPERATOR_SDK_VERSION}
 	curl -sSLo $${OP_SDK_PATH} $${OPERATOR_SDK_DL_URL}/operator-sdk_$${OS}_$${ARCH}
 
+	echo "[INFO] operator-sdk will downloaded to: $${OP_SDK_PATH}"
 	chmod +x $${OP_SDK_PATH}
 
 removeRequiredAttribute:

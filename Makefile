@@ -86,6 +86,30 @@ help: ## Display this help.
 
 ##@ Development
 
+download-operator-sdk:
+	ARCH=$$(case "$$(uname -m)" in
+	x86_64) echo -n amd64 ;;
+	aarch64) echo -n arm64 ;;
+	*) echo -n $$(uname -m)
+	esac)
+	OS=$$(uname | awk '{print tolower($$0)}')
+
+	OPERATOR_SDK_VERSION=$$(sed -r 's|operator-sdk:\s*(.*)|\1|' REQUIREMENTS)
+
+	echo "[INFO] ARCH: $$ARCH, OS: $$OS. operator-sdk version: $$OPERATOR_SDK_VERSION"
+
+	if [ -z $(OP_SDK_DIR) ]; then
+		OP_SDK_PATH="operator-sdk"
+	else
+		OP_SDK_PATH="$(OP_SDK_DIR)/operator-sdk"
+	fi
+	echo "[INFO] operator-sdk will be downloaded to: $${OP_SDK_PATH}"
+
+	OPERATOR_SDK_DL_URL=https://github.com/operator-framework/operator-sdk/releases/download/$${OPERATOR_SDK_VERSION}
+	curl -sSLo $${OP_SDK_PATH} $${OPERATOR_SDK_DL_URL}/operator-sdk_$${OS}_$${ARCH}
+
+	chmod +x $${OP_SDK_PATH}
+
 removeRequiredAttribute:
 	REQUIRED=false
 

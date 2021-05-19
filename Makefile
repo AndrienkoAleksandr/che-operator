@@ -110,7 +110,9 @@ download-operator-sdk:
 	curl -sSLo $${OP_SDK_PATH} $${OPERATOR_SDK_DL_URL}/operator-sdk_$${OS}_$${ARCH}
 
 	echo "[INFO] operator-sdk will downloaded to: $${OP_SDK_PATH}"
+	echo "[INFO] Set up executable permissions to binary."
 	chmod +x $${OP_SDK_PATH}
+	echo "[INFO] operator-sdk is ready."
 
 removeRequiredAttribute:
 	REQUIRED=false

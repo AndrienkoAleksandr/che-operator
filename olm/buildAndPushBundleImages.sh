@@ -55,8 +55,6 @@ fi
 export BASE_DIR="${ROOT_PROJECT_DIR}/olm"
 
 source "${BASE_DIR}/olm.sh"
-installOPM
-${OPM_BINARY} version
 
 echo "[INFO] Platform: ${platform}"
 if [ -n "${OPM_BUNDLE_DIR}" ]; then

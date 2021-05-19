@@ -149,8 +149,7 @@ buildBundleImage() {
 
   pushd "${ROOT_DIR}" || true
 
-  make bundles || true # todo remove it...
-  make bundle-build bundle-push BUNDLE_IMG="${CATALOG_BUNDLE_IMAGE_NAME_LOCAL}" platform="${platform}" IMAGE_TOOL="${imageTool}"
+  make bundle-build bundle-push DEFAULT_CHANNEL="${channel}" BUNDLE_IMG="${CATALOG_BUNDLE_IMAGE_NAME_LOCAL}" platform="${platform}" IMAGE_TOOL="${imageTool}"
   popd || true
 }
 
@@ -291,6 +290,7 @@ forcePullingOlmImages() {
   kubectl delete job/force-pulling-olm-images-job -n "${namespace}"
 }
 
+# TODO: use make for this purpose...
 installOPM() {
   OPM_BINARY=$(command -v opm) || true
   if [[ ! -x $OPM_BINARY ]]; then

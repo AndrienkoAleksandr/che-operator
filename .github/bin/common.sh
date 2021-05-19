@@ -85,20 +85,12 @@ initStableTemplates() {
   mkdir -p "${LAST_OPERATOR_TEMPLATE}/che-operator"
   mkdir -p "${PREVIOUS_OPERATOR_TEMPLATE}/che-operator"
 
-  compareResult=$(pysemver compare "${PREVIOUS_PACKAGE_VERSION}" "7.31.0")
-  if [ "${compareResult}" == "0" ]; then
-      cp -rf ${previousOperatorPath}/config/* "${PREVIOUS_OPERATOR_TEMPLATE}/che-operator"
-    else
-      cp -rf ${previousOperatorPath}/deploy/* "${PREVIOUS_OPERATOR_TEMPLATE}/che-operator"
-  fi
-
-  compareResult=$(pysemver compare "${LAST_PACKAGE_VERSION}" "7.31.0")
-  if [ "${compareResult}" == "0" ]; then
+  compareResult=$(pysemver compare "${LAST_PACKAGE_VERSION}" "7.30.2")
+  if [ "${compareResult}" == "1" ]; then
       cp -rf ${lastOperatorPath}/config/* "${LAST_OPERATOR_TEMPLATE}/che-operator"
     else
       cp -rf ${lastOperatorPath}/deploy/* "${LAST_OPERATOR_TEMPLATE}/che-operator"
   fi
-  
 }
 
 # Utility to wait for a workspace to be started after workspace:create.
